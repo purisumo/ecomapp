@@ -1,0 +1,219 @@
+.checkout-page .page-wrapper {
+    justify-content: center;
+
+    .page-container {
+        width: 100%;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: $box-shadow3;
+        padding: 1.2rem;
+        padding-bottom: 1.8rem;
+        display: flex;
+        gap: 1rem;
+        height: 100%;
+
+        .items-section {
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            gap: .2rem;
+            align-items: center;
+            width: 400px;
+
+            overflow-y: auto;
+
+            .item {
+                padding: 1rem;
+                border-radius: 8px;
+                width: 100%;
+                display: flex;
+                gap: .6rem;
+                transition: .3s;
+
+                &:hover {
+                    background: $background-color;
+                }
+
+                .image-container {
+                    display: flex;
+                    border-radius: 6px;
+                    overflow: hidden;
+                    height: fit-content;
+                    width: fit-content;
+
+                    img {
+                        object-fit: contain;
+                    }
+                }
+
+                .item-info {
+                    display: flex;
+                    flex-direction: column;
+                    gap: .6rem;
+
+                    .item-name {
+                        font-size: 1.2rem;
+                        font-weight: 500;
+                    }
+
+                    .price {
+                        font-weight: 500;
+                    }
+
+                    .seller {
+                        display: flex;
+                        margin-top: auto;
+                        align-items: center;
+                        gap: .6rem;
+                        padding: .4rem .6rem;
+                        border-radius: 8px;
+                        border: 1px solid $border-color;
+                        max-width: 450px;
+                        cursor: pointer;
+                        transition: .3s;
+
+                        &:hover {
+                            border-color: $background-color-hover;
+                            background: $background-color-hover;
+                        }
+
+                        .seller-img {
+                            height: 30px;
+                            width: 30px;
+
+                            i {
+                                font-size: 30px;
+                            }
+                        }
+
+                        .seller-name {
+                            color: $text-color4;
+                            font-weight: 500;
+                        }
+
+                        .user-role {
+                            color: $border-color;
+                        }
+                    }
+                }
+
+                .mid-item-section {
+                    display: flex;
+                    flex-direction: column;
+                    width: 250px;
+                    gap: .4rem;
+                    margin-left: 6%;
+
+                    .label-with-value {
+                        justify-content: space-between;
+
+                        .value {
+                            font-weight: 500;
+                        }
+
+                        &.estimated-cont {
+                            flex-direction: column;
+                            gap: 0;
+                            padding: .6rem .8rem;
+                            border-radius: 8px;
+                            background: $green;
+                            color: $green3;
+
+                            .value {
+                                font-size: 1.2rem;
+                            }
+                        }
+                    }
+                }
+
+                .more-info-wrap {
+                    margin-left: auto;
+                    width: 300px;
+
+                    .status {
+                        font-size: 1.6rem;
+                        font-weight: 500;
+                        text-align: right;
+                        line-height: 1.6rem;
+                        margin-bottom: .4rem;
+
+                        &.pending {
+                            color: orange;
+                        }
+
+                        &.shipped {
+                            color: $blue;
+                        }
+
+                        &.completed {
+                            color: $green2;
+                        }
+
+                        &.canceled {
+                            color: $red-color;
+                        }
+                    }
+
+                    .computation-cont .label-with-value {
+                        justify-content: space-between;
+
+                        &.total {
+                            font-size: 1.2rem;
+                        }
+                    }
+
+                    .actions {
+                        display: flex;
+                        justify-content: end;
+                        gap: .6rem;
+                        margin-top: .6rem;
+                    }
+                }
+            }
+        }
+
+        .payment-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+            width: 430px;
+
+            .user-info {
+                padding: .8rem 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: .4rem;
+                border-radius: 6px;
+                background: $background-color;
+                position: relative;
+                width: 100%;
+            }
+        }
+
+        .computation-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+
+            .content-wrapper {
+                border: 3px dashed $border-color;
+                border-radius: 8px;
+                padding: 1rem;
+                height: fit-content;
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+
+                .label-with-value {
+                    justify-content: space-between;
+                    font-weight: 500;
+
+                    &.total {
+                        font-size: 1.2rem;
+                    }
+                }
+            }
+        }
+    }
+}

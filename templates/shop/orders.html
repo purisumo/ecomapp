@@ -1,0 +1,227 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% load cart_extras %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+{% block css %}
+<style>
+  .shop-page {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #f7f9fc 0%, #e8ecef 100%);
+    min-height: 100vh;
+    /* padding: 40px 20px; */
+    margin: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  .orders-container {
+    max-width: 1000px;
+    width: 100%;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    padding: 32px;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .orders-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .orders-header h2 {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #1a202c;
+    margin: 0;
+  }
+  .error {
+    color: #e53e3e;
+    font-size: 1.125rem;
+    text-align: center;
+    padding: 16px;
+    background: #fff5f5;
+    border-radius: 8px;
+    margin-bottom: 24px;
+  }
+  .empty-orders {
+    text-align: center;
+    color: #718096;
+    font-size: 1.125rem;
+    padding: 24px;
+    background: #edf2f7;
+    border-radius: 8px;
+  }
+  .orders-list {
+    display: grid;
+    gap: 24px;
+  }
+  .order-card {
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: 1px solid #e2e8f0;
+  }
+  .order-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .order-details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .order-details p {
+    margin: 0;
+    font-size: 1rem;
+    color: #2d3748;
+  }
+  .order-details .order-number {
+    font-weight: 600;
+    font-size: 1.125rem;
+  }
+  .order-details .shop-name {
+    color: #4a5568;
+  }
+  .order-details .total-amount {
+    font-weight: 500;
+    color: #2b6cb0;
+  }
+  .status {
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    text-transform: capitalize;
+  }
+  .status.pending {
+    background: #fefcbf;
+    color: #b7791f;
+  }
+  .status.processing {
+    background: #bee3f8;
+    color: #2b6cb0;
+  }
+  .status.shipped {
+    background: #b2f5ea;
+    color: #2f855a;
+  }
+  .status.completed {
+    background: #c6f6d5;
+    color: #2f855a;
+  }
+  .status.cancelled {
+    background: #fed7d7;
+    color: #c53030;
+  }
+  .cancel-order {
+    padding: 8px 16px;
+    background: #e53e3e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  .cancel-order:hover {
+    background: #c53030;
+  }
+  .cancel-order:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.3);
+  }
+  @media (max-width: 768px) {
+    .orders-container {
+      padding: 20px;
+    }
+    .orders-header h2 {
+      font-size: 1.75rem;
+    }
+    .order-card {
+      padding: 16px;
+    }
+    .order-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.cancel-order').forEach(button => {
+      button.addEventListener('click', function() {
+        const orderId = this.closest('.order-card').dataset.id;
+        if (confirm('Are you sure you want to cancel this order?')) {
+          fetch(`/shop/cancel-order/${orderId}/`, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert('Order cancelled successfully');
+              location.reload();
+            } else {
+              alert(data.error || 'Failed to cancel order');
+            }
+          })
+          .catch(error => {
+            alert('An error occurred while cancelling the order');
+          });
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}
+<section class="shop-page">
+  <div class="orders-container">
+    <div class="orders-header">
+      <h2>Your Orders</h2>
+    </div>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% elif orders.exists %}
+      <div class="orders-list">
+        {% for order in orders %}
+          <div class="order-card" data-id="{{ order.id }}">
+            <div class="order-header">
+              <div class="order-details">
+                <p class="order-number">Order #{{ order.order_number }}</p>
+                <p class="shop-name">Shop: {{ order.shop.name }}</p>
+                <p class="total-amount">Total: ${{ order.total_amount }}</p>
+              </div>
+              <div class="status {{ order.status }}">{{ order.status }}</div>
+            </div>
+            {% if order.status == 'pending' or order.status == 'processing' %}
+              <button class="cancel-order">Cancel Order</button>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-orders">
+        <p>You have no orders.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

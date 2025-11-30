@@ -1,0 +1,235 @@
+:is(.list-of-orders-page, .wish-list-page) .page-wrapper {
+  height: unset;
+  min-height: 100%;
+
+  .page-container {
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: $box-shadow3;
+    padding: 1.2rem;
+    padding-bottom: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    // height: fit-content;
+
+    .sub-navbar .actions button {
+      gap: .2rem;
+    }
+  }
+}
+
+.list-of-orders-page .page-wrapper {
+  .sub-navbar .actions button {
+    transition: .3s;
+
+    &.selected {
+      background: $primary-color;
+      color: $text-color2;
+    }
+  }
+
+  .content-section {
+    display: none;
+    height: 100%;
+    flex-direction: column;
+    gap: .2rem;
+    align-items: center;
+    transition: .3s ease;
+
+    &.show-section {
+      display: flex;
+    }
+
+    .order-item {
+      padding: 1rem;
+      border-radius: 8px;
+      width: 100%;
+      display: flex;
+      gap: 1rem;
+      transition: .3s;
+
+      &:hover {
+        background: $background-color;
+      }
+
+      .image-container {
+        display: flex;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+
+      .item-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .item-name {
+          font-size: 1.2rem;
+          font-weight: 500;
+        }
+
+        .seller {
+          display: flex;
+          gap: .6rem;
+          padding: .8rem;
+          border-radius: 8px;
+          border: 1px solid $border-color;
+          max-width: 450px;
+          cursor: pointer;
+          transition: .3s;
+
+          &:hover {
+            border-color: $background-color-hover;
+            background: $background-color-hover;
+          }
+
+          .seller-img {
+            height: 40px;
+            width: 40px;
+
+            i {
+              font-size: 40px;
+            }
+          }
+
+          .seller-name {
+            color: $text-color4;
+            font-weight: 500;
+            font-size: .8rem;
+          }
+
+          .user-role {
+            color: $border-color;
+            font-size: .8rem;
+          }
+        }
+      }
+
+      .mid-item-section {
+        display: flex;
+        flex-direction: column;
+        width: 300px;
+        gap: .4rem;
+
+        .label-with-value {
+          justify-content: space-between;
+
+          .value {
+            font-weight: 500;
+            text-align: right;
+          }
+
+          &.estimated-cont {
+            flex-direction: column;
+            gap: 0;
+            padding: .6rem .8rem;
+            border-radius: 6px;
+            background: $green;
+            color: $green3;
+          }
+        }
+      }
+
+      .more-info-wrap {
+        margin-left: auto;
+        width: 300px;
+
+        .status {
+          font-size: 1.6rem;
+          font-weight: 500;
+          text-align: right;
+          line-height: 1.6rem;
+          margin-bottom: .4rem;
+
+          &.pending {
+            color: orange;
+          }
+
+          &.shipped {
+            color: $blue;
+          }
+
+          &.completed {
+            color: $green2;
+          }
+
+          &.cancelled {
+            color: $red-color;
+          }
+        }
+
+        .computation-cont .label-with-value {
+          justify-content: space-between;
+
+          &.total {
+            font-size: 1.2rem;
+          }
+        }
+
+        .actions {
+          display: flex;
+          justify-content: end;
+          gap: .6rem;
+          margin-top: .6rem;
+        }
+      }
+    }
+  }
+}
+
+.wish-list-page .page-wrapper {
+  .items-section {
+    grid-template-columns: repeat(auto-fit, minmax(216px, 216px));
+
+    &.empty-listing {
+      display: flex;
+      height: 100%;
+    }
+
+    .item {
+      .item-img {
+        width: 204px;
+        height: 204px;
+      }
+
+      &:hover {
+        box-shadow: $box-shadow4;
+      }
+    }
+  }
+}
+
+.list_of_users .content-section .order-item {
+  .image-cont {
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+
+    i {
+      font-size: 8rem;
+    }
+  }
+
+  .item-info {
+    text-wrap: nowrap;
+    justify-content: start !important;
+    gap: .2rem;
+  }
+
+  .label-with-value {
+    gap: .6rem;
+
+    .label {
+      color: $border-color;
+    }
+  }
+
+  .more-info-wrap {
+    width: 214px !important;
+  }
+}

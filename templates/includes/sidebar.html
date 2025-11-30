@@ -1,0 +1,29 @@
+{% load static %}
+
+<div class="sidebar">
+  <nav>
+    <div class="logo-cont">
+      <img src="{% static 'images/icons/logo.png' %}" alt="logo">
+      <p>DEE <span>TOUCH</span> <br>OF <span>GOLD</span></p>
+    </div>
+
+    <ul class="links">
+      <li><a href="{% url 'shop:seller_dashboard' %}" class="{% if request.resolver_match.url_name == 'seller_dashboard' %}active{% endif %}">Dashboard</a></li>
+      <li><a href="{% url 'shop:admin_orders' %}" class="{% if request.resolver_match.url_name == 'admin_orders' %}active{% endif %}">Orders</a></li>
+      {% comment %} <li><a href="{% url 'shop:edit_shop' %}" class="{% if request.resolver_match.url_name == 'edit_shop' %}active{% endif %}">Shop</a></li> {% endcomment %}
+      <li><a href="{% url 'shop:seller_products'%}" class="{% if request.resolver_match.url_name == 'seller_products' %}active{% endif %}">Product</a></li>
+      <li><a href="{% url 'shop:seller_messages' %}" class="{% if request.resolver_match.url_name == 'seller_messages' %}active{% endif %}">Messages {% if unread_chats_count > 0 %}<span class="counter-in-btn">{{unread_chats_count}}</span>{% endif %}</a></li>
+      <li><a href="{% url 'shop:admin_notifications' %}" class="{% if request.resolver_match.url_name == 'admin_notifications' %}active{% endif %}">Notifications {% if unread_notif_count > 0 %}<span class="counter-in-btn">{{unread_notif_count}}</span>{% endif %}</a></li>
+      {% if request.user.is_superuser %}
+      <li><a href="{% url 'shop:list_of_users' %}" class="{% if request.resolver_match.url_name == 'list_of_users' %}active{% endif %}">List of users</a></li>
+      {% endif %}
+    </ul>
+
+    <div class="user-info">
+      {% if not request.user.is_superuser %}
+        <a href="{% url 'shop:profile' %}" class="border-btn-primary2" style="margin-bottom:.8rem">{{ user.email }}</a>
+      {% endif %}
+      <a href="{% url 'shop:logout' %}" class="border-btn-primary2">Logout</a>
+    </div>
+  </nav>
+</div>

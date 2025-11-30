@@ -1,0 +1,214 @@
+{% extends '../includes/base.html' %}
+{% block title %}Thrift N Buy | Products{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+
+<section class="shop-page">
+  <div class="page-wrapper">
+    <div class="left-section">
+      <div class="filter-cont">
+        <input type="search" name="search-item" id="search-item" placeholder="Search items">
+        
+        <select id="filter-material" class="list-btn">
+          <option value="">All Materials</option>
+        </select>
+
+        <select id="filter-type" class="list-btn">
+          <option value="">All Types</option>
+        </select>
+      </div>
+
+      <div class="divider">
+        <p>CART</p>
+        <hr>
+      </div>
+
+      <div class="cart-items">
+        {% if cart.items.exists %}
+          {% for item in cart.items.all %}
+            <div class="item" data-id="{{ item.product.id }}">
+              <img src="{{ item.product.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ item.product.name }}" class="item-img" />
+              <div class="descriptions">
+                <p class="name text-clamp">{{ item.product.name }}</p>
+                <p class="price">Price: <span>₱{{ item.product.price }}</span></p>
+              </div>
+              <button class="icon-btn-delete2 delete-cart-item" data-id="{{ item.id }}"> <!-- Use item.id for cart item -->
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-content" style="font-size: 16px">
+            <p>Cart is empty.</p>
+          </div>
+        {% endif %}
+      </div>
+
+      <a href="{% url 'shop:checkout' %}" class="primary-btn">PROCEED TO CHECKOUT</a>
+    </div>
+
+    <div class="items-section {% if not products.exists %}no-available-cont{% endif %}">
+      {% for product in products %}
+        <div class="item" 
+              data-id="{{ product.id }}"
+              data-name="{{ product.name|escapejs }}"
+              data-price="{{ product.price }}"
+              data-description="{{ product.description|escapejs }}"
+              data-image="{{ product.image.url|default:'/static/images/placeholder.jpg'|escapejs }}"
+              data-seller-name="{{ product.shop.name }}"
+              data-seller-rating="{{ product.shop.seller.rating|default:0 }}"
+              data-seller-products="{{ product.shop.products.count }}"
+              data-seller-followers="{{ product.shop.followers.count }}"
+              data-shop-id="{{ product.shop.id }}"
+              data-rating="{{ product.rating|default:'4.6' }}"
+              data-products-sold="{{ product.shop.products_sold|default:0 }}"
+              data-is-in-cart="{{ product.is_in_cart }}"
+              data-material="{{ product.material }}"
+              data-type="{{ product.type }}"
+              data-is-available="{{ product.is_available }}">
+
+            <div style="position:relative;">
+              <img src="{{ product.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ product.name|escapejs }}" class="item-img" />
+              {% if not product.is_available %}<span class="item-not-available">Item not available</span>{% endif %}
+            </div>
+            <div class="descriptions">
+                <p class="name text-clamp">{{ product.name }}</p>
+                <div class="wrap">
+                    <p class="price">₱{{ product.price }}</p>
+                    {% comment %} <div class="rating">
+                        <i class="bi bi-star-fill"></i>
+                        <p>{{ product.rating|default:"4.6" }}</p>
+                    </div> {% endcomment %}
+                </div>
+            </div>
+        </div>
+
+      {% empty %}
+          <p class="no-available">
+            No available items to display.
+          </p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<form method="post" class="modal item-info" id="item-info-modal">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+    
+    <div class="content">
+      <input type="hidden" name="item-id" id="item-id">
+
+      <div class="left-section">
+          <div class="item-img" style="object-fit: scale-down;">
+            <img src="{{ item.product.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ item.product.name }}" class="item-img" />
+          </div>
+          {% if request.user.is_authenticated and request.user.user_type == 'customer' %}
+            <div class="button-cont">
+              <button class="border-btn-primary2 medium-btn wishlist-btn" type="button" data-in-wishlist="false">Add to Wishlist</button>
+              <button class="primary-btn medium-btn add-to-cart" type="button">Add to Cart</button>
+              <!-- <button class="primary-btn medium-btn buy-now" type="button">Buy Now</button> -->
+            </div>
+          {% endif %}
+      </div>
+
+      <div class="descriptions">
+        <p class="name"></p>
+        <p class="price"><span class="currency">₱</span></p>
+        
+        <div class="seller">
+          <p class="label">Seller</p>
+          <a href="#" class="wrap"> 
+            <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+
+            <div class="info">
+              <p class="seller-name"></p>
+              
+              <div class="cont">
+                <div class="rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span></span>
+                </div>
+
+                <span class="line-span"></span>
+                <div class="products"><span></span> Products</div>
+                <span class="line-span"></span>
+                <div class="followers"><span></span> Followers</div>
+                <span class="line-span"></span>
+                <div class="products-sold"><span></span> Products sold</div>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="details-cont">
+          <div class="category-material-wrap" style="display:flex; gap:5rem; margin-bottom:.2rem;">
+            <div class="material-cont">
+              <p class="label">Material: </p>
+              <p class="material"></p>
+            </div>
+            <div class="category-cont">
+              <p class="label">Type: </p>
+              <p class="type"></p>
+            </div>
+          </div>
+
+          <p class="label">Details</p>
+          <p class="details"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Serialize wishlist_products as JSON -->
+{{ wishlist_products|json_script:"wishlist-products" }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Populate filters & handle search/filter
+$(document).ready(function () {
+
+  // Fill <select> options from existing items
+  function populateSelect(id, dataAttr) {
+    let values = new Set();
+    $('.item').each(function () {
+      values.add($(this).data(dataAttr));
+    });
+    Array.from(values).sort().forEach(v => {
+      let label = v.replace(/\b\w/g, c => c.toUpperCase()); // capitalize each word
+      $(`#${id}`).append(`<option value="${v}">${label}</option>`);
+    });
+  }
+
+  populateSelect('filter-material', 'material');
+  populateSelect('filter-type', 'type');
+
+  // Combined search + filter
+  function filterItems() {
+    let searchVal = $('#search-item').val().toLowerCase();
+    let matVal = $('#filter-material').val().toLowerCase();
+    let typeVal = $('#filter-type').val().toLowerCase();
+
+    $('.item').each(function () {
+      let name = $(this).data('name').toLowerCase();
+      let material = $(this).data('material').toLowerCase();
+      let type = $(this).data('type').toLowerCase();
+
+      let matchSearch = name.includes(searchVal);
+      let matchMat = !matVal || material === matVal;
+      let matchType = !typeVal || type === typeVal;
+
+      $(this).toggle(matchSearch && matchMat && matchType);
+    });
+  }
+
+  $('#search-item, #filter-material, #filter-type').on('input change', filterItems);
+});
+</script>
+
+<script src="{% static 'js/customer/item_info.js' %}"></script>
+{% endblock scripts %}

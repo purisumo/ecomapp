@@ -1,0 +1,45 @@
+{% extends '../includes/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/sidebar.html" %}
+
+<section class="dashboard seller-content">
+  <div class="page-wrapper">
+    <p class="page-title">Seller dashboard</p>
+
+    <div class="content">
+      <div class="computations">
+        <div class="left">
+          <div class="wrap">
+            <div class="right container-box">
+              <p class="quantity">{{ total_listed_items }}</p>
+              <p class="label">Total Items Listed</p>
+            </div>
+
+            <div class="right container-box">
+              <p class="total">{{ shop.products_sold }}</p>
+              <p class="label">Items Sold</p>
+            </div>
+          </div>
+
+          <div class="revenue-cont container-box">
+            <p class="quantity">php{{ total_revenue|floatformat:2 }}</p>
+            <p class="label">Total Revenue</p>
+          </div>
+        </div>
+
+        <div class="right container-box">
+          <p class="label">Items Available</p>
+          <p class="total">{{ available_stock }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% comment %}
+<script src="{% static 'js/customer/navbar.js' %}"></script> {% endcomment %}
+{% endblock scripts %}

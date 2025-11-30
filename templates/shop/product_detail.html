@@ -1,0 +1,63 @@
+{% extends '../includes/base.html' %}
+{% block content %}
+<div class="signup-container">
+    <h2>{{ product.name }}</h2>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% else %}
+        <div class="product-detail">
+            <p><strong>Description:</strong> {{ product.description }}</p>
+            <p><strong>Price:</strong> ${{ product.price }}</p>
+            <p><strong>Shop:</strong> {{ product.shop.name }}</p>
+            <p><strong>In Stock:</strong> {{ product.stock }}</p>
+            {% if request.user.is_authenticated and request.user.user_type == 'customer' %}
+                <div class="product-actions">
+                    <button class="add-to-cart" data-id="{{ product.id }}">Add to Cart</button>
+                    <button class="add-to-wishlist" data-id="{{ product.id }}">Add to Wishlist</button>
+                </div>
+                <h3>Place Order</h3>
+                <div class="error"></div>
+                <form id="order-form" method="post" data-id="{{ product.id }}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="quantity">Quantity</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="{{ product.stock }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ form.shipping_address.id_for_label }}">Shipping Address</label>
+                        {{ form.shipping_address }}
+                    </div>
+                    <button type="submit" id="place-order">Place Order</button>
+                </form>
+                <h3>Write a Review</h3>
+                <form id="review-form" method="post" data-id="{{ product.id }}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="{{ review_form.rating.id_for_label }}">Rating</label>
+                        {{ review_form.rating }}
+                    </div>
+                    <div class="form-group">
+                        <label for="{{ review_form.comment.id_for_label }}">Comment</label>
+                        {{ review_form.comment }}
+                    </div>
+                    <button type="submit" id="submit-review">Submit Review</button>
+                </form>
+            {% endif %}
+            <h3>Reviews</h3>
+            {% if reviews.exists %}
+                <div id="reviews-list">
+                    {% for review in reviews %}
+                        <div class="review" data-id="{{ review.id }}">
+                            <p><strong>{{ review.customer.username }}</strong> - Rating: {{ review.rating }}/5</p>
+                            <p>{{ review.comment }}</p>
+                            <p><small>{{ review.created_at|date:"F d, Y" }}</small></p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>No reviews yet.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

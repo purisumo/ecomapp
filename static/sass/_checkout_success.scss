@@ -1,0 +1,43 @@
+.checkout-success-page .page-wrapper {
+    justify-content: center;
+
+    .page-container {
+        width: fit-content;
+        height: fit-content;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: $box-shadow3;
+        padding: 1.2rem 2rem;
+        padding-bottom: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        margin-top: 10%;
+
+        .content-section {
+            display: flex;
+            height: 100%;
+            flex-direction: column;
+            gap: 1.5rem;
+            align-items: center;
+            justify-content: center;
+
+            i {
+                color: $green2;
+                font-size: 8rem;
+                line-height: 0;
+            }
+
+            p.message {
+                text-align: center;
+                font-size: 1.2rem;
+                font-weight: 500;
+                padding: 1rem 0;
+            }
+
+            a {
+                width: 100%;
+            }
+        }
+    }
+}

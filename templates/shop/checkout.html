@@ -1,0 +1,28 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% load cart_extras %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+<section class="shop-page">
+<div class="signup-container hero">
+    <h2>Checkout</h2>
+    {% if cart.items.exists %}
+        <div id="cart-items">
+            {% for item in cart.items.all %}
+                <p>{{ item.product.name }} - ${{ item.product.price }} x {{ item.quantity }} = ${{ item.quantity|floatformat:2|multiply:item.product.price }}</p>
+            {% endfor %}
+        </div>
+        <form id="order-form" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.shipping_address.id_for_label }}">Shipping Address</label>
+                {{ form.shipping_address }}
+            </div>
+            <button type="submit" id="place-order">Place Order</button>
+        </form>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
+</section>
+{% endblock %}

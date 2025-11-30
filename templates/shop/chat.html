@@ -1,0 +1,85 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+<section class="shop-page">
+<div class="chat-container">
+    <h2>Chat with {{ shop.name }}</h2>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% else %}
+        <div id="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="message-input" placeholder="Type your message...">
+            <button id="send-message" class="primary-btn">Send</button>
+        </div>
+        <div class="actions">
+            {% if user.user_type == 'seller' %}
+                <a href="{% url 'shop:seller_messages' %}" class="border-btn-primary2">Back to Messages</a>
+                <a href="{% url 'shop:seller_dashboard' %}" class="border-btn-primary2">Back to Dashboard</a>
+            {% else %}
+                <a href="{% url 'shop:products' %}" class="border-btn-primary2">Back to Products</a>
+            {% endif %}
+        </div>
+    {% endif %}
+    <script>
+        const chatId = {{ chat_id|default:0 }};
+        const userUsername = "{{ user.username|escapejs }}";
+        const messagesUrl = "{{ messages_url|escapejs }}";
+        const sendUrl = "{{ send_url|escapejs }}";
+
+        async function fetchMessages() {
+            try {
+                const response = await fetch(messagesUrl);
+                const data = await response.json();
+                const messagesDiv = document.getElementById('chat-messages');
+                messagesDiv.innerHTML = '';
+                if (Array.isArray(data.messages)) {
+                    data.messages.forEach(msg => {
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = `message ${msg.sender === userUsername ? 'sent' : 'received'}`;
+                        msgDiv.innerHTML = `<strong>${msg.sender}:</strong> ${msg.content} <small>(${new Date(msg.sent_at).toLocaleString()})</small>`;
+                        messagesDiv.appendChild(msgDiv);
+                    });
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                }
+            } catch (error) {
+                console.error('Error fetching messages:', error);
+            }
+        }
+
+        document.getElementById('send-message').addEventListener('click', async () => {
+            const input = document.getElementById('message-input');
+            const content = input.value.trim();
+            if (!content) return;
+
+            try {
+                const response = await fetch(sendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ content })
+                });
+                const data = await response.json();
+                if (data.sender) {
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = `message sent`;
+                    msgDiv.innerHTML = `<strong>${data.sender}:</strong> ${data.content} <small>(${new Date(data.sent_at).toLocaleString()})</small>`;
+                    document.getElementById('chat-messages').appendChild(msgDiv);
+                    document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+                    input.value = '';
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+            }
+        });
+
+        // Fetch messages initially and every 5 seconds
+        fetchMessages();
+        setInterval(fetchMessages, 5000);
+    </script>
+</div>
+</section>
+{% endblock %}

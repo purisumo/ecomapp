@@ -1,0 +1,287 @@
+.item-info-page,
+.edit-item-page {
+  position: unset;
+  overflow: auto;
+
+  .wrapper {
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 1300px;
+    margin: auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    .action-cont {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .top-cont {
+      display: flex;
+      justify-content: center;
+      height: fit-content;
+      padding-bottom: 2rem;
+      gap: 1.5rem;
+
+      .image-cont {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+
+        img {
+          width: 480px;
+          height: 480px;
+          border-radius: 10px;
+        }
+      }
+
+      .info-cont {
+        padding: .5rem 0 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        font-size: 1.2rem;
+
+        .item_name {
+          font-weight: 600;
+          font-size: 2.5rem;
+        }
+
+        span {
+          font-weight: 600;
+          margin-right: .4rem;
+        }
+
+        .price {
+          font-weight: 600;
+          font-size: 1.6rem;
+          color: $primary-color;
+
+          span {
+            color: $text-color;
+            font-size: 1.2rem;
+          }
+        }
+
+        .seller {
+          pointer-events: auto;
+
+          a:hover {
+            text-decoration: underline;
+          }
+        }
+
+        .description {
+          display: flex;
+          flex-direction: column;
+          margin-top: .4rem;
+        }
+      }
+    }
+
+    .bottom-action {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      padding: 0.6rem;
+      box-shadow: $box-shadow2;
+
+      .action-cont {
+        display: flex;
+        justify-content: center;
+        gap: 1.2rem;
+
+        button,
+        a {
+          width: 30%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+      }
+    }
+
+    .modal .modal-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .content {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        max-width: 800px;
+
+        img {
+          width: 500px;
+          max-width: 400px;
+          height: 320px;
+        }
+
+        .info {
+          font-size: 1.2rem;
+          display: flex;
+          flex-direction: column;
+          gap: .6rem;
+          width: 100%;
+          padding-right: 1.4rem;
+
+          .name {
+            font-size: 2rem;
+            font-weight: 600;
+          }
+
+          div.row {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+
+            span {
+              font-weight: 500;
+            }
+          }
+
+          .total {
+            margin-top: 2rem;
+            font-weight: 500;
+          }
+
+          .quantity {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-top: 0.4rem;
+
+            .quantity-input {
+              display: flex;
+              align-items: center;
+              height: 100%;
+              width: 100%;
+              gap: 0.2rem;
+
+              button {
+                background-color: $text-color2;
+                color: $border-color;
+                border: 1px solid $second-color-btn;
+                border-radius: 4px;
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+                cursor: pointer;
+                transition: background-color 0.3s ease, transform 0.2s;
+
+                &:hover {
+                  background-color: darken($text-color2, 10%);
+                  transform: scale(1.1);
+                }
+
+                &:active {
+                  background-color: darken($text-color2, 20%);
+                }
+              }
+
+              input {
+                width: 8rem;
+                height: 100%;
+                text-align: center;
+                font-size: 1.2rem;
+                border: 1px solid $second-color-btn;
+                outline: none;
+                transition: border-color 0.3s;
+
+                // Remove up/down buttons for Webkit browsers
+                &::-webkit-outer-spin-button,
+                &::-webkit-inner-spin-button {
+                  -webkit-appearance: none;
+                  margin: 0;
+                }
+
+                &:focus {
+                  border-color: $primary-color;
+                }
+              }
+            }
+          }
+
+          .primary-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        }
+      }
+    }
+  }
+}
+
+.edit-item-page .wrapper {
+  .top-cont {
+    .image-cont {
+      .item-img {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 480px;
+        height: 480px;
+        font-size: 1rem;
+
+        i {
+          font-size: 1.2rem;
+          margin-left: .4rem;
+        }
+      }
+
+      img {
+        width: 480px;
+        height: 480px;
+        border-radius: 10px;
+        border: 1px solid $border-color;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid $border-color;
+        border-radius: 6px;
+        padding: .6rem 1rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+
+        &:hover {
+          border-color: $primary-color;
+        }
+      }
+    }
+
+    .info-cont {
+      width: 100%;
+
+      .inputs-cont:not(.description) {
+        width: 70%;
+      }
+
+      .description .container {
+        padding: 8px 8px 8px 16px;
+
+        textarea {
+          height: 220px;
+          width: 100%;
+          border: none;
+          background: transparent;
+          outline: none;
+          resize: none;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .bottom-action.sell .action-cont {
+    padding: 0 4rem;
+    max-width: 1300px;
+    margin: auto;
+    justify-content: end;
+  }
+}

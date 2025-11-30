@@ -1,0 +1,189 @@
+{% extends '../includes/base.html' %}
+{% block title %}Messages{% endblock %}
+{% load static %}
+{% block content %}
+
+{% if user.user_type == 'customer' %}
+{% include "../includes/navbar.html" %}
+{% else %}
+{% include "../includes/sidebar.html" %}
+{% endif %}
+
+<section class="message-page {% if user.user_type != 'customer' %}seller-content{% endif %}">
+  <div class="page-wrapper">
+    <div class="page-container">
+      <div class="left-section">
+        <div class="top-wrap">
+          <p class="title">Messages</p>
+
+          <input type="search" name="search-item" id="search-item" placeholder="Search">
+        </div>
+
+        <div class="messages-list-cont">
+          <!-- <div class="empty-content">
+            <p>No messages with sellers <br>has been made yet.</p>
+          </div> -->
+
+          <div class="message-list-item selected">
+            <div class="seller-img"></div>
+
+            <div class="content-info">
+              <p class="name">Dwight Vista Corpuz</p>
+              <p class="message-prev">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque, laborum voluptate
+                consequuntur nostrum tempora earum ullam doloribus cupiditate. Nisi eius fugiat voluptatum! Velit
+                consequatur provident modi ducimus laboriosam officiis sapiente!</p>
+            </div>
+
+            <div class="date-cont">
+              <p>12/07/2025</p>
+              <p>11:20 PM</p>
+            </div>
+          </div>
+
+          <hr class="line-separator">
+
+          <div class="message-list-item">
+            <div class="seller-img"></div>
+
+            <div class="content-info">
+              <p class="name">Dwight Vista Corpuz</p>
+              <p class="message-prev">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque, laborum voluptate
+                consequuntur nostrum tempora earum ullam doloribus cupiditate. Nisi eius fugiat voluptatum! Velit
+                consequatur provident modi ducimus laboriosam officiis sapiente!</p>
+            </div>
+
+            <div class="date-cont">
+              <p>12/07/2025</p>
+              <p>11:20 PM</p>
+            </div>
+          </div>
+
+          <hr class="line-separator">
+
+          <div class="message-list-item">
+            <div class="seller-img"></div>
+
+            <div class="content-info">
+              <p class="name">Dwight Vista Corpuz</p>
+              <p class="message-prev">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque, laborum voluptate
+                consequuntur nostrum tempora earum ullam doloribus cupiditate. Nisi eius fugiat voluptatum! Velit
+                consequatur provident modi ducimus laboriosam officiis sapiente!</p>
+            </div>
+
+            <div class="date-cont">
+              <p>12/07/2025</p>
+              <p>11:20 PM</p>
+            </div>
+          </div>
+
+          <hr class="line-separator">
+
+          <div class="message-list-item">
+            <div class="seller-img"></div>
+
+            <div class="content-info">
+              <p class="name">Dwight Vista Corpuz</p>
+              <p class="message-prev">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque, laborum voluptate
+                consequuntur nostrum tempora earum ullam doloribus cupiditate. Nisi eius fugiat voluptatum! Velit
+                consequatur provident modi ducimus laboriosam officiis sapiente!</p>
+            </div>
+
+            <div class="date-cont">
+              <p>12/07/2025</p>
+              <p>11:20 PM</p>
+            </div>
+          </div>
+
+          <hr class="line-separator">
+
+          <div class="message-list-item">
+            <div class="seller-img"></div>
+
+            <div class="content-info">
+              <p class="name">Dwight Vista Corpuz</p>
+              <p class="message-prev">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque, laborum voluptate
+                consequuntur nostrum tempora earum ullam doloribus cupiditate. Nisi eius fugiat voluptatum! Velit
+                consequatur provident modi ducimus laboriosam officiis sapiente!</p>
+            </div>
+
+            <div class="date-cont">
+              <p>12/07/2025</p>
+              <p>11:20 PM</p>
+            </div>
+          </div>
+
+          <hr class="line-separator">
+
+          <div class="message-list-item">
+            <div class="seller-img"></div>
+
+            <div class="content-info">
+              <p class="name">Dwight Vista Corpuz</p>
+              <p class="message-prev">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque, laborum voluptate
+                consequuntur nostrum tempora earum ullam doloribus cupiditate. Nisi eius fugiat voluptatum! Velit
+                consequatur provident modi ducimus laboriosam officiis sapiente!</p>
+            </div>
+
+            <div class="date-cont">
+              <p>12/07/2025</p>
+              <p>11:20 PM</p>
+            </div>
+          </div>
+
+          <hr class="line-separator">
+
+          <div class="message-list-item">
+            <div class="seller-img"></div>
+
+            <div class="content-info">
+              <p class="name">Dwight Vista Corpuz</p>
+              <p class="message-prev">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Atque, laborum voluptate
+                consequuntur nostrum tempora earum ullam doloribus cupiditate. Nisi eius fugiat voluptatum! Velit
+                consequatur provident modi ducimus laboriosam officiis sapiente!</p>
+            </div>
+
+            <div class="date-cont">
+              <p>12/07/2025</p>
+              <p>11:20 PM</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="line-separator y-axis">
+
+      <div class="right-section">
+        <div class="top-wrap">
+          <div class="seller">
+            <div class="seller-img"></div>
+
+            <div class="wrapper">
+              <p class="name">Dwight Vista Corpuz</p>
+              <!-- <p class="status">Active now</p> -->
+            </div>
+          </div>
+
+          <div class="action"><button class="icon-btn-transparent"><i class="bi bi-three-dots-vertical"></i></button>
+          </div>
+        </div>
+
+        <div class="message-content-wrap">
+          meow
+        </div>
+
+        <div class="bottom-wrap">
+          <textarea rows="1" placeholder="Type a message..."></textarea>
+
+          <button class="icon-btn-transparent"><i class="bi bi-send-fill"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% comment %}
+<script src="{% static 'js/customer/item_info.js' %}"></script>
+<script src="{% static 'js/customer/customer_info.js' %}"></script> {% endcomment %}
+{% endblock scripts %}

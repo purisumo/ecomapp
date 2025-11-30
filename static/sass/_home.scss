@@ -1,0 +1,55 @@
+.home-page {
+  display: flex;
+  flex-direction: column;
+
+  .landing {
+    background-image: linear-gradient(rgba(35, 38, 66, 0.5),
+        rgba(35, 38, 66, 0.5)),
+      url(../images/background/landing.png);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    padding-top: 80px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    height: 100vh;
+
+    .page-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      margin-top: auto;
+      gap: 0.4rem;
+      text-align: left;
+      width: 100%;
+      height: fit-content;
+      // background: rgba(255, 255, 255, 0.6);
+      padding: 2.8rem 1.5rem;
+
+      p {
+        font-size: 4rem;
+        font-weight: 500;
+        color: $text-color2;
+
+        &:last-of-type {
+          font-size: 1.2rem;
+          margin-bottom: 1.8rem;
+        }
+      }
+
+      .primary-btn {
+        width: fit-content;
+      }
+
+      img {
+        position: absolute;
+        top: 50%;
+        right: 1.8rem;
+        transform: translateY(-50%);
+        width: 600px;
+        filter: drop-shadow(0 0 10px rgba($primary-color, 0.5));
+      }
+    }
+  }
+}

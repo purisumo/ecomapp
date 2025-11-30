@@ -1,0 +1,84 @@
+{% extends '../includes/base.html' %} 
+{% load static %} 
+{% block title %}Admin | User's Info{% endblock %} 
+{% block content %} 
+{% include "../includes/navbar.html" %}
+<section class="user-info-page">
+  <div class="wrapper">
+    <div class="action-cont">
+      <a href="{% url 'admin_mode:users_list' %}" class="back-btn"><i class="bi bi-arrow-left"></i> Back</a>
+
+      <form
+        method="post"
+        class="button-cont"
+        action="{% url 'admin_mode:user_info' account.id %}"
+      >
+        {% csrf_token %}
+        <button type="submit" name="delete" class="border-btn-primary2">
+          Delete account
+        </button>
+        {% if account.status != "Disabled" %}
+        <button type="submit" name="disable" class="border-btn-primary2">
+          Disable
+        </button>
+        <!--{% endif %} {% if account.status != "Approved" %}
+        <button type="submit" name="approve" class="primary-btn">
+          Set as Approved
+        </button>
+        {% else %}
+        <button type="submit" name="pending" class="primary-btn">
+          Set as Pending
+        </button>
+        {% endif %}-->
+      </form>
+    </div>
+
+    <div class="main-cont">
+      <div class="image-cont"><i class="bi bi-person-circle"></i></div>
+
+      <div class="info-cont">
+        <p class="name">{{ account.get_full_name }}</p>
+        <p class="gender"><span>Gender</span>{{ account.gender }}</p>
+        <p class="email"><span>Email</span>{{ account.email }}</p>
+        <p class="contact_num">
+          <span>Contact no.</span>{{ contact_number.contact_number }}
+        </p>
+        <p class="address">
+          <span>Address</span>{{ address.get_full_address }}
+        </p>
+      </div>
+    </div>
+
+    <div class="items-cont">
+      <div class="title">Products selling</div>
+
+      <div class="items-wrapper">
+        {% if account.items_for_sale.all %}
+        {% for item in account.items_for_sale.all %}
+        <a href="{% url 'base:item_detail' item.id %}" class="item-cont">
+          <div class="item">
+            <img src="{{ item.get_image_url }}" alt="item-image" />
+
+            <div class="description">
+              <p class="name">{{ item.name }}</p>
+              <p class="price">₱{{ item.price }}</p>
+              <p class="city">{{ item.city }}</p>
+              <div>
+                <p>Stock: {{ item.stock }}</p>
+                <p>Sold: {{ item.sold }}</p>
+              </div>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+        {% else %}
+        <p class="no-available">No available items to display.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %} {% block scripts %}
+<script src="{% static 'js/navbar.js' %}"></script>
+{% endblock %}

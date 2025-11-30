@@ -1,0 +1,76 @@
+{% extends '../includes/base.html' %}
+{% block title %}Product Info | {{product.name}}{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/sidebar.html" %}
+
+<section class="item-info seller-content">
+  <div class="page-wrapper">
+    <div class="sub-navbar">
+      <p class="page-title">Product info</p>
+
+      <div class="buttons">
+        <button class="border-btn-primary2" data-modal="mark-as" data-mark="{% if product.is_available %}unavailable{% else %}available{% endif %}">Mark as {% if product.is_available %}unavailable{% else %}available{% endif %}</button>
+        <a href="{% url 'shop:edit_product' product.id %}" class="primary-btn">Edit info</a>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="image-container">
+        <img src="{{ product.image.url }}" id="output" width="200">
+      </div>
+
+      <div class="item-infos">
+        <div class="wrap">
+          <p class="name">{{ product.name }}</p>
+
+          <p class="price"><span class="currency">₱</span>{{ product.price }}</p>
+        </div>
+
+        <div class="wrap-info">
+          <div class="label-text-col-cont">
+            <p class="label">Material : </p>
+            <p class="value capitalize">{{ product.material }}</p>
+          </div>
+
+          <div class="label-text-col-cont">
+            <p class="label">Type : </p>
+            <p class="value capitalize">{{ product.type }}</p>
+          </div>
+
+          <div class="label-text-col-cont">
+            <p class="label">Descriptions : </p>
+            <p class="value">{{ product.description|linebreaksbr }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <form class="modal confirmation" method="post">
+      {% csrf_token %}
+      <div class="modal-container">
+        <div class="close"><i class="bi bi-x"></i></div>
+
+        <div class="modal-content">
+          <div class="content-wrap">
+            <p>Are you sure you want to <span></span> <b></b>?</p>
+          </div>
+
+          <div class="button-cont-below">
+            <button class="border-btn-primary2 with-icon-btn cancel-btn" type="button">
+              Cancel
+            </button>
+            <button class="primary-btn with-icon-btn" type="submit">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/seller/item.js' %}"></script>
+{% endblock scripts %}

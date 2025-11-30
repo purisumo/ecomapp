@@ -1,0 +1,22 @@
+{% extends '../includes/base.html' %} 
+{% block title %}Home{% endblock %}
+{% load static %} 
+{% block content %}
+{% include "../includes/navbar.html" %}
+
+<div class="home-page">
+  <section class="landing">
+    <div class="page-wrapper">
+      <p>Douce Métallique</p>
+      <p>Embrace the gentle radiance of our gold and silver creations, <br> where delicate artistry weaves stories of timeless beauty. <br>Each piece, crafted with care, invites you to adorn your moments <br>with a touch of serene elegance.</p>
+      <a href="{% url 'shop:products' %}" class="primary-btn medium-btn">Start shopping &gt;</a>
+
+      <img src="{% static 'images/icons/landing-item.png' %}" alt="item-image"/>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock scripts %}

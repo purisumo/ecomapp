@@ -1,0 +1,225 @@
+{% extends '../includes/base.html' %}
+{% load static cart_extras %}
+{% block title %}Seller Messages{% endblock %}
+{% block content %}
+
+{% include "../includes/sidebar.html" %}
+
+<section class="message-page seller-content">
+  <div class="page-wrapper">
+    <div class="page-container {% if selected_chat %}is-selected-message{% endif %}">
+      <div class="left-section">
+        <div class="top-wrap">
+          <p class="title">Messages for {{ shop.name }}</p>
+          <!-- <input type="search" name="search-item" id="search-item" placeholder="Search"> -->
+        </div>
+
+        <div class="messages-list-cont">
+          {% if chats %}
+            {% for chat in chats %}
+              <div class="message-list-item {% if not chat.is_read and selected_chat.id != chat.id %}unread{% endif %} {% if selected_chat and selected_chat.id == chat.id %}selected{% endif %}" data-chat-id="{{ chat.id }}">
+                <div class="seller-img">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+                <div class="content-info">
+                  <p class="name">{{ chat.customer.username }}</p>
+                  <p class="message-prev">{{ chat.latest_message|default:"Start a conversation" }}</p>
+                </div>
+                <div class="date-cont">
+                  {% if not chat.is_read and selected_chat.id != chat.id %}<span></span>{% endif %}
+                  <div>
+                    <p>{{ chat.latest_message_date|date:"m/d/Y"|default:"" }}</p>
+                    <p>{{ chat.latest_message_time|time:"h:i A"|default:"" }}</p>
+                  </div>
+                </div>
+              </div>
+              <hr class="line-separator">
+            {% endfor %}
+          {% else %}
+            <div class="empty-content">
+              <p>No messages with customers yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <hr class="line-separator y-axis">
+
+      <div class="right-section">
+        {% if error %}
+          <div class="empty-content">
+            <p class="error">{{ error }}</p>
+          </div>
+        {% elif selected_chat %}
+          <div class="top-wrap">
+            <div class="seller">
+              <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+              <div class="wrapper">
+                <p class="name">{{ selected_chat.customer.username }}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="message-content-wrap">
+            <div id="chat-messages"></div>
+          </div>
+
+          <div class="bottom-wrap">
+            <textarea rows="1" id="message-input" placeholder="Type a message..."></textarea>
+            <button id="send-message" class="icon-btn-transparent"><i class="bi bi-send-fill"></i></button>
+          </div>
+        {% else %}
+          <div class="empty-content">
+            <p>Select a customer to start chatting</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock styles %}
+
+{% block scripts %}
+<script>
+  const userUsername = "{{ user.username|escapejs }}";
+  let currentChatId = {{ selected_chat_id|default:0 }};
+  let messagesUrl = "{{ messages_url|escapejs }}";
+  let sendUrl = "{{ send_url|escapejs }}";
+  let pollingInterval = null;
+
+  async function fetchMessages() {
+    if (!currentChatId || currentChatId === 0) {
+      const messagesDiv = document.getElementById('chat-messages');
+      if (messagesDiv) messagesDiv.innerHTML = '<p class="empty-message">Select a chat to view messages</p>';
+      return;
+    }
+    try {
+      const response = await fetch(messagesUrl.replace('0', currentChatId));
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      const messagesDiv = document.getElementById('chat-messages');
+      if (!messagesDiv) return;
+      messagesDiv.innerHTML = '';
+      if (Array.isArray(data.messages)) {
+        let currentDate = null;
+        data.messages.forEach(msg => {
+          const msgDate = new Date(msg.sent_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+          if (msgDate !== currentDate) {
+            currentDate = msgDate;
+            const dateDiv = document.createElement('p');
+            dateDiv.className = 'date';
+            dateDiv.textContent = currentDate;
+            messagesDiv.appendChild(dateDiv);
+          }
+          const msgDiv = document.createElement('div');
+          msgDiv.className = `messages-cont ${msg.sender === userUsername ? 'customer' : ''}`;
+          const contentDiv = document.createElement('div');
+          contentDiv.className = 'message-content';
+          const messageDiv = document.createElement('div');
+          messageDiv.className = 'message';
+          messageDiv.innerHTML = `<p>${msg.content}</p>`;
+          const timeDiv = document.createElement('p');
+          timeDiv.className = 'time';
+          timeDiv.textContent = new Date(msg.sent_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+          contentDiv.appendChild(messageDiv);
+          contentDiv.appendChild(timeDiv);
+          msgDiv.appendChild(contentDiv);
+          messagesDiv.appendChild(msgDiv);
+        });
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      } else {
+        messagesDiv.innerHTML = '<p class="empty-message">No messages yet</p>';
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+      const messagesDiv = document.getElementById('chat-messages');
+      if (messagesDiv) {
+        messagesDiv.innerHTML = '<p class="error">Failed to load messages. Please try again.</p>';
+      }
+    }
+  }
+
+  async function sendMessage() {
+    if (!currentChatId || currentChatId === 0) {
+      console.warn('No chat selected for sending message');
+      return;
+    }
+    const input = document.getElementById('message-input');
+    const content = input.value.trim();
+    if (!content) return;
+
+    try {
+      const response = await fetch(sendUrl.replace('0', currentChatId), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ content })
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (data.sender) {
+        const messagesDiv = document.getElementById('chat-messages');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'messages-cont customer';
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.innerHTML = `<p>${data.content}</p>`;
+        const timeDiv = document.createElement('p');
+        timeDiv.className = 'time';
+        timeDiv.textContent = new Date(data.sent_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
+        contentDiv.appendChild(messageDiv);
+        contentDiv.appendChild(timeDiv);
+        msgDiv.appendChild(contentDiv);
+        messagesDiv.appendChild(msgDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        input.value = '';
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  }
+
+  function startPolling() {
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+    }
+    if (currentChatId && currentChatId !== 0) {
+      pollingInterval = setInterval(fetchMessages, 5000);
+    }
+  }
+
+  document.querySelectorAll('.message-list-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const chatId = item.dataset.chatId;
+      window.location.href = `/shop/seller/messages/${chatId}/`;
+    });
+  });
+
+  document.getElementById('send-message')?.addEventListener('click', sendMessage);
+
+  document.getElementById('message-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+
+  // Initial load
+  if (currentChatId && currentChatId !== 0) {
+    fetchMessages();
+    startPolling();
+  }
+</script>
+{% endblock scripts %}
+{% endblock %}
