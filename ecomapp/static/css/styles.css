@@ -1,0 +1,225 @@
+/* body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+
+a {
+  pointer-events: auto;
+}
+
+.nav-cart-btn {
+  position: relative;
+}
+.cart-counter {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.hero{
+    margin-top: 50px  !important;
+    height: auto;
+}
+
+.chat-container {
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.message {
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.message.sent {
+    background-color: #e3f2fd;
+    margin-left: 20%;
+}
+
+.message.received {
+    background-color: #f5f5f5;
+    margin-right: 20%;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+}
+
+#message-input {
+    flex-grow: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#send-message {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#send-message:hover {
+    background-color: #0056b3;
+}
+
+.signup-container {
+    max-width: 600px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#signup-button,
+#login-button,
+#place-order,
+#save-shop,
+#save-product {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#signup-button:hover,
+#login-button:hover,
+#place-order:hover,
+#save-shop:hover,
+#save-product:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+.alert {
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    position: relative;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.alert-error::after {
+    content: '×';
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.cart-item,
+.wishlist-item,
+.order,
+.review,
+.product {
+    border-bottom: 1px solid #ddd;
+    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-item input.quantity {
+    width: 60px;
+}
+
+.delete-cart-item,
+.delete-wishlist-item,
+.cancel-order,
+.edit-review,
+.delete-review,
+.edit-product,
+.delete-product,
+.add-to-cart,
+.add-to-wishlist,
+.add-review {
+    padding: 5px 10px;
+    color: red;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.add-to-cart,
+.add-to-wishlist {
+    background-color: #007bff;
+}
+
+.add-to-cart:hover,
+.add-to-wishlist:hover {
+    background-color: #0056b3;
+}
+
+.order select.order-status {
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+} */

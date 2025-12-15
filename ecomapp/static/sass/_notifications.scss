@@ -1,0 +1,98 @@
+.notifications-page .page-container {
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: $box-shadow3;
+    padding: 1.2rem;
+    padding-bottom: 1.8rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+    // height: fit-content;
+
+    .link-cont {
+        width: 100%;
+        max-width: unset;
+        font-size: 1rem;
+
+        .wrapper {
+            padding: 0.8rem 0.6rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+
+            a {
+                text-align: left;
+                flex-direction: column;
+                gap: 0.2rem;
+
+                .title {
+                    font-weight: 500;
+                }
+
+                p,
+                .date {
+                    color: $text-color4;
+                }
+
+                .seller {
+                    color: $primary-color;
+                }
+
+                .date {
+                    font-size: 0.8rem;
+                    width: 100%;
+                    text-align: right;
+                }
+            }
+
+            li p {
+                color: $text-color;
+            }
+
+            li.empty-content {
+                margin-top: 26%;
+
+                p {
+                    color: $border-color;
+                }
+            }
+        }
+
+        .wrapper {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 6px;
+            padding: 0.4rem;
+
+            a {
+                padding: 0.6rem 1rem;
+                border-radius: 6px;
+                display: flex;
+                align-items: baseline;
+                gap: 0.6rem;
+                cursor: pointer;
+                color: $text-color;
+
+                &.unread {
+                    background: lighten($primary-color, 36);
+                }
+
+                &:hover {
+                    background: $hover-color;
+                }
+
+                &:active {
+                    background: $unhover-color;
+                }
+
+                i {
+                    font-size: 1.4rem;
+                    color: #575757;
+                    line-height: 0;
+                }
+            }
+        }
+    }
+}

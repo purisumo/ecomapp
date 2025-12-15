@@ -1,0 +1,46 @@
+{% extends '../includes/base.html' %} 
+{% load static %} 
+{% block title %}Admin | List of orders{% endblock %} 
+{% block content %} 
+{% include "../includes/navbar.html" %}
+<section class="list-orders-page">
+  <div class="wrapper">
+  <div class="list-with-label">
+    <div class="title">User's orders</div>
+    <div class="labels">
+      <p class="id">Order ID</p>
+      <p class="total-items">Total items</p>
+      <p class="total-price">Total price</p>
+      <p class="date">Date</p>
+      <p class="status">Status</p>
+    </div>
+    <div class="list-cont">
+      {% for group in grouped_non_admin_orders %}
+        <div class="group">
+          <!-- Buyer Name as a Label -->
+          <div class="group-label">
+            <strong>{{ group.buyer_name }}</strong>
+          </div>
+          <!-- Orders of the Buyer -->
+          {% for order in group.orders %}
+            <a href="{% url 'base:customer_order_details' order.id %}" class="list">
+              <p class="id">{{ order.id }}</p>
+              <p class="total-items">{{ order.total_items }}</p>
+              <p class="total-price">₱{{ order.total_price }}</p>
+              <p class="date">{{ order.date }}</p>
+              <p class="status"><strong>{{ order.status }}</strong></p>
+            </a>
+          {% endfor %}
+        </div>
+      {% empty %}
+        <p class="no-available">No orders found.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+</section>
+
+{% endblock %} {% block scripts %}
+<script src="{% static 'js/navbar.js' %}"></script>
+{% endblock %}

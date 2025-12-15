@@ -1,0 +1,65 @@
+{% extends '../includes/base.html' %}
+{% load static cart_extras %}
+{% block title %}Seller Categories{% endblock %}
+
+{% block content %}
+{% include "../includes/sidebar.html" %}
+
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<section class="dashboard seller-content px-6 py-10 bg-gray-50 min-h-screen">
+  <div class="max-w-5xl mx-auto">
+    <!-- Page Title -->
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-2xl font-bold text-gray-800">{{ shop.name }} Categories</h2>
+      <a href="{% url 'shop:create_category' %}" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-md transition shadow">
+        + New Category
+      </a>
+    </div>
+
+    <!-- Error Message -->
+    {% if error %}
+      <div class="bg-red-100 border border-red-300 text-red-700 text-sm px-4 py-3 rounded mb-6">
+        {{ error }}
+      </div>
+
+    <!-- Category Listing -->
+    {% elif category_products %}
+      <div class="space-y-6">
+        {% for category, products in category_products.items %}
+          <div class="bg-white rounded-lg shadow-sm p-5">
+            <!-- Category Header -->
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-medium text-gray-700">{{ category.name }}</h3>
+              <div class="flex items-center gap-4">
+                <a href="{% url 'shop:edit_category' category.id %}" class="text-sm text-blue-600 hover:underline">Edit</a>
+                <form method="post" action="{% url 'shop:delete_category' category.id %}" onsubmit="return confirm('Delete {{ category.name }}?')">
+                  {% csrf_token %}
+                  <button type="submit" class="text-sm text-red-600 hover:underline">Delete</button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Product List -->
+            {% if products %}
+              <ul class="divide-y divide-gray-200 text-sm text-gray-700">
+                {% for product in products %}
+                  <li class="py-3 flex justify-between">
+                    <span>{{ product.name }}</span>
+                    <span class="text-green-600 font-medium">₱{{ product.price|floatformat:2 }}</span>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-gray-400 text-sm">No products in this category.</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+    <!-- Empty State -->
+    {% else %}
+      <p class="text-gray-500 text-center text-sm mt-16">No categories with products found.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

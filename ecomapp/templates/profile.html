@@ -1,0 +1,133 @@
+{% extends './includes/base.html' %}
+{% block title %}Profile{% endblock %}
+{% load static %}
+{% block content %}
+
+{% if user.user_type == 'customer' %}
+{% include "./includes/navbar.html" %}
+{% else %}
+{% include "./includes/sidebar.html" %}
+{% endif %}
+
+<section class="profile-page {% if user.user_type != 'customer' %}seller-content{% endif %}">
+  <div class="page-wrapper">
+    <form class="page-container" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="sub-navbar">
+        <div class="title">
+          <p>Profile</p>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="border-btn-primary2" data-modal="change-password">Change Password</button>
+          <button type="button" class="primary-btn" data-modal="save-info">Save</button>
+        </div>
+      </div>
+
+      <div class="content-section">
+        <div class="profile-image-cont">
+          <div class="profile-img"><i class="bi bi-person-circle"></i></div>
+        </div>
+
+        <div class="profile-info-wrap">
+          <div class="profile-info-cont">
+            <div class="input-cont">
+              <label for="f-name">First name <span>*</span></label>
+              <input type="text" name="f-name" id="f-name" value="{{ user.first_name }}">
+            </div>
+
+            <div class="input-cont">
+              <label for="m-name">Middle name <span>*</span></label>
+              <input type="text" name="m-name" id="m-name" value="{{ user.middle_name }}">
+            </div>
+          </div>
+
+          <div class="profile-info-cont">
+            <div class="input-cont">
+              <label for="l-name">Last name <span>*</span></label>
+              <input type="text" name="l-name" id="l-name" value="{{ user.last_name }}">
+            </div>
+
+            <div class="input-cont">
+              <label for="address">Address <span>*</span></label>
+              <input type="text" name="address" id="address" value="{{ user.address }}">
+            </div>
+          </div>
+
+          <div class="profile-info-cont">
+            <div class="input-cont">
+              <label for="phone-number">Phone number <span>*</span></label>
+              <input type="text" name="phone-number" id="phone-number" value="{{ user.phone_number }}">
+            </div>
+
+            <div class="input-cont">
+              <label>Email <span> (email cannot be changed)</span></label>
+              <input type="text"  value="{{ user.email }}" disabled>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="modal confirmation show-modal"> -->
+      <div class="modal confirmation">
+        <div class="modal-container">
+          <div class="close"><i class="bi bi-x"></i></div>
+
+          <div class="modal-content">
+            <div class="content-wrap type2">
+              <p>Are you sure you want to <span>save your new account info</span>?</p>
+            </div>
+
+            <div class="button-cont-below">
+              <button class="border-btn-primary2" type="button">
+                Cancel
+              </button>
+              <button class="primary-btn" type="submit">
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal change-password">
+        <div class="modal-container">
+          <div class="close"><i class="bi bi-x"></i></div>
+
+          <div class="modal-content">
+            <div class="content-wrap type2">
+              <div class="input-cont">
+                <label for="old-password">Old password <span>*</span></label>
+                <input type="password" name="old-password" id="old-password">
+              </div>
+
+              <div class="input-cont">
+                <label for="password">Password <span>*</span></label>
+                <input type="password" name="password" id="password">
+              </div>
+
+              <div class="input-cont">
+                <label for="re-pass">Re-enter password <span>*</span></label>
+                <input type="password" name="re-pass" id="re-pass">
+              </div>
+            </div>
+
+            <div class="button-cont-below">
+              <button class="border-btn-primary2" type="button">
+                Cancel
+              </button>
+              <button class="primary-btn" type="submit">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock scripts %}

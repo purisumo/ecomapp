@@ -1,0 +1,85 @@
+.modal:is(.login-modal, .signup-modal) {
+  z-index: 4;
+  position: fixed;
+}
+
+:is(.modal.login-modal, .modal.signup-modal) .modal-container {
+  padding: 1.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 400px;
+
+  p.label {
+    text-align: center;
+    font-size: 4rem;
+    font-family: "Deutschlander";
+    letter-spacing: 4px;
+    line-height: 36px;
+  }
+
+  .actions {
+    text-align: center;
+
+    .primary-btn {
+      width: 100%;
+    }
+
+    p.signup,
+    p.login {
+      pointer-events: auto;
+
+      &:hover span {
+        text-decoration: underline;
+      }
+
+
+      span {
+        color: $primary-color;
+        cursor: pointer;
+
+      }
+    }
+  }
+}
+
+.modal.login-modal .modal-container {
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+
+    .forgot-pass {
+      width: fit-content;
+      margin-left: auto;
+      color: $border-color;
+
+      &:hover {
+        color: $primary-color;
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.modal.signup-modal .modal-container {
+  width: unset;
+  gap: 2.5rem;
+
+  .content {
+    display: flex;
+    gap: 2rem;
+
+    .content-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      width: 340px;
+    }
+  }
+
+  .actions {
+    width: 40%;
+    margin: auto;
+  }
+}

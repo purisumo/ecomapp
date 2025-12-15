@@ -1,0 +1,40 @@
+.admin-home-page {
+  .wrapper {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .admin-dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+
+    .stat-card {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: all 0.3s ease;
+
+      h3 {
+        font-size: 1.5rem;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      p {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #555;
+      }
+
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+}

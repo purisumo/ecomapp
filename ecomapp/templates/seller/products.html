@@ -1,0 +1,52 @@
+{% extends '../includes/base.html' %}
+{% block title %}Listed Products{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/sidebar.html" %}
+
+<section class="list-of-products seller-content">
+  <div class="page-wrapper">
+    <div class="sub-navbar">
+      <p class="page-title">List of listed products</p>
+      <a href="{% url 'shop:add_product' %}" class="primary-btn">List new product</a>
+    </div>
+
+    <div class="content">
+      {% if products %}
+      <div class="items-section">
+        {% for prod in products%}
+        <a href="{% url 'shop:product_info' prod.id %}" class="item" data-id="{{prod.id}}">
+          <div style="position:relative;">
+            <img src="{{ prod.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ prod.name|escapejs }}" class="item-img" />
+            {% if not prod.is_available %}<span class="item-not-available">Item not available</span>{% endif %}
+          </div>
+
+          <div class="descriptions">
+            <p class="name text-clamp">{{prod.name}} {{prod.seller}}</p>
+
+            <div class="wrap">
+              <p class="price"><span class="currency">₱</span>{{prod.price}}</p>
+
+              {% comment %} <div class="rating">
+                <i class="bi bi-star-fill"></i>
+                <p>4.8</p>
+              </div> {% endcomment %}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="no-data">
+        <p>You have not listed any products yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% comment %}
+<script src="{% static 'js/customer/navbar.js' %}"></script> {% endcomment %}
+{% endblock scripts %}

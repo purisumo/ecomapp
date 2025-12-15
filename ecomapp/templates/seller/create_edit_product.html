@@ -1,0 +1,98 @@
+{% extends '../includes/base.html' %}
+{% block title %}{% if product %}Edit item info{% else %}List new item{% endif %}{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/sidebar.html" %}
+
+<section class="crud_item seller-content">
+  <form class="page-wrapper" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="sub-navbar">
+      <p class="page-title">{% if product %}Edit item info{% else %}List new item{% endif %}</p>
+
+      <div class="buttons">
+        {% if product %}
+        <a href="{% url 'shop:product_info' product.id %}" class="border-btn-primary2">Cancel</a>
+        <button class="delete-btn" type="button" data-modal="delete-item">Delete product</button>
+        {% endif %}
+
+        {% if product %}
+        <button class="primary-btn" type="button" data-modal="save-edit">Save</button>
+        {% else %}
+        <button class="primary-btn" type="submit" name="save-new">List product</button>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="image-cont">
+        <img {% if product %}src="{{product.image.url}}" {% endif %} id="output" width="200" {% if not product %}style="display: none;" {% endif %}>
+        {% if not product %}
+        <span class="item-img">Upload an image <i class="bi bi-arrow-down"></i></span>
+        {% endif %}
+        <input type="file" name="image" accept="image/*">
+      </div>
+
+      <div class="item-infos">
+        <div class="input-cont">
+          <p class="input-error-message"></p>
+          <label for="name">Name</label>
+          <input type="text" name="name" id="f-name" {% if product %}value="{{product.name}}" {% endif %}>
+        </div>
+        <div class="input-cont">
+          <p class="input-error-message"></p>
+          <label for="price">Price</label>
+          <input type="number" name="price" id="price" {% if product %}value="{{product.price}}" {% endif %}>
+        </div>
+        <div class="input-cont">
+          <p class="input-error-message"></p>
+          <label for="description">Description</label>
+          <textarea name="description" id="description" cols="30" rows="8">{% if product %}{{product.description}}{% endif %}</textarea>
+        </div>
+        <div class="input-cont">
+          <label for="material">Material</label>
+          <select class="list-btn" name="material" id="material">
+            <option value="gold and silver" {% if product.material == "gold and silver" %}selected{% elif not product %}selected{% endif %}>Gold & Silver</option>
+            <option value="gold" {% if product.material == "gold" %}selected{% endif %}>Gold</option>
+            <option value="silver" {% if product.material == "silver" %}selected{% endif %}>Silver</option>
+            <option value="rose gold" {% if product.material == "rose gold" %}selected{% endif %}>Rose Gold</option>
+            <option value="white gold" {% if product.material == "white gold" %}selected{% endif %}>White Gold</option>
+          </select>
+        </div>
+        <div class="input-cont">
+          <label for="type">Type</label>
+          <select class="list-btn" name="type" id="type">
+            <option value="necklace" {% if product.material == "necklace" %}selected{% elif not product %}selected{% endif %}>Necklace</option>
+            <option value="bangle" {% if product.material == "bangle" %}selected{% endif %}>Bangle</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal confirmation">
+      <div class="modal-container">
+        <div class="close"><i class="bi bi-x"></i></div>
+
+        <div class="modal-content">
+          <div class="content-wrap">
+            <p>Are you sure you want to <span></span>?</p>
+          </div>
+
+          <div class="button-cont-below">
+            <button class="border-btn-primary2 with-icon-btn cancel-btn" type="button">
+              Cancel
+            </button>
+            <button class="primary-btn with-icon-btn" type="submit">
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/seller/item.js' %}"></script>
+{% endblock scripts %}

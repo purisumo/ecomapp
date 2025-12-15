@@ -1,0 +1,128 @@
+{% extends '../includes/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% load static %}
+
+{% block content %}
+{% include "../includes/sidebar.html" %}
+
+<section class="dashboard seller-content">
+  <div class="page-wrapper">
+    <p class="page-title">Seller dashboard</p>
+
+    <div class="content">
+      <div class="computations">
+        <div class="wrap">
+          <div class="container-box">
+            <p class="total">{{ available_stock }}</p>
+            <p class="label">Items Available</p>
+          </div>
+          <div class="container-box">
+            <p class="total">{{ shop.products_sold }}</p>
+            <p class="label">Items Sold</p>
+          </div>
+          <div class="container-box">
+            <p class="total">{{ total_listed_items }}</p>
+            <p class="label">Total Items Listed</p>
+          </div>
+        </div>
+
+        <div class="wrap date-filter">
+          <div class="container-box selected" data-view="today">
+            <p class="label">Today</p>
+          </div>
+
+          <div class="container-box" data-view="weekly">
+            <p class="label">Weekly</p>
+          </div>
+
+          <div class="container-box" data-view="monthly">
+            <p class="label">Monthly</p>
+          </div>
+
+          <div class="container-box total-revenue" data-view="all">
+            <p class="total"><span class="currency">₱</span>{{ total_revenue|floatformat:2 }}</p>
+            <p class="label">Total Revenue</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="sections" id="invoice-section">
+        <div class="title-cont">
+          <p class="title" id="section-title">Today's Invoice</p>
+
+          <div class="input-cont">
+            <!-- Weekly Dropdown (hidden by default) -->
+            <select id="weekly-select" class="list-btn filter-dropdown" style="display: none;">
+              {% for week_start, week_label in weeks %}
+              <option value="{{ week_start }}">{{ week_label }}</option>
+              {% endfor %}
+            </select>
+
+            <!-- Monthly Dropdown (hidden by default) -->
+            <select id="monthly-select" class="list-btn filter-dropdown" style="display: none;">
+              {% for month_num, month_name in months %}
+              <option value="{{ month_num }}">{{ month_name }} {{ current_year }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="details" id="stats-details"></div>
+
+        <div id="orders-list"></div>
+      </div>
+
+      <div class="sections" id="items-section">
+        <div class="title-cont">
+          <p class="title" id="section-title">Items Available</p>
+        </div>
+
+        <div class="items-content">
+          {% if products %}
+          <div class="items-section">
+            {% for prod in products%}
+            <a href="{% url 'shop:product_info' prod.id %}" class="item" data-id="{{prod.id}}">
+              <div style="position:relative;">
+                <img src="{{ prod.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ prod.name|escapejs }}"
+                  class="item-img" />
+                {% if not prod.is_available %}<span class="item-not-available">Item not available</span>{% endif %}
+              </div>
+
+              <div class="descriptions">
+                <p class="name text-clamp">{{prod.name}} {{prod.seller}}</p>
+
+                <div class="wrap">
+                  <p class="price"><span class="currency">₱</span>{{prod.price}}</p>
+
+                  {% comment %} <div class="rating">
+                    <i class="bi bi-star-fill"></i>
+                    <p>4.8</p>
+                  </div> {% endcomment %}
+                </div>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="no-data">
+            <p>You have not listed any products yet.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Safe JSON injection -->
+{{ orders_data|json_script:"all-orders-data" }}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Safely load orders data
+  const element = document.getElementById('all-orders-data');
+  const allOrders = element ? JSON.parse(element.textContent) : [];
+</script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

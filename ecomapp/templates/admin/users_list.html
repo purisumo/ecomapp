@@ -1,0 +1,39 @@
+{% extends '../includes/base.html' %} 
+{% load static %} 
+{% block title %}Admin | Users List{% endblock %} 
+{% block content %} 
+{% include "../includes/navbar.html" %}
+<section class="checkout-page">
+  <div class="wrapper">
+    <div class="list-with-label">
+      <div class="title">List of Users</div>
+      <div class="labels">
+        <p class="name">Name</p>
+        <p class="item-selling">Item Selling</p>
+        <p class="total-orders">Total Orders</p>
+        <p class="total-spent">Total Spent</p>
+        <p class="recent-order">Most Recent Order</p>
+        <!--<p class="status">Status</p>-->
+      </div>
+      <div class="list-cont">
+        {% for user_acct in customers %}
+        <a href="{% url 'admin_mode:user_info' user_acct.id %}" class="list">
+          <p class="name">{{ user_acct.get_full_name }}</p>
+          <p class="item-selling">{{ user_acct.total_items }}</p>
+          <p class="total-orders">{{ user_acct.total_orders }}</p>
+          <p class="total-spent">${{ user_acct.total_spent|default:"0.00" }}</p>
+          <p class="recent-order">
+            {{ user_acct.most_recent_order_date|date:"F d, Y" }}
+          </p>
+          <!--<p class="status">{{ user_acct.status }}</p>-->
+        </a>
+        {% empty %}
+        <p class="no-available">No users found.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{% static 'js/navbar.js' %}"></script>
+{% endblock %}

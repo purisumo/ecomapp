@@ -1,0 +1,32 @@
+{% extends '../includes/base.html' %}
+{% block title %}Checkout success{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+
+<section class="checkout-success-page">
+  <div class="page-wrapper">
+    <div class="page-container">
+      <div class="content-section">
+        <i class="bi bi-check-circle-fill"></i>
+        
+        <p class="message">
+          Thank you for your
+          purchase! <br>
+          Your order was placed successfully.
+        </p>
+        
+        
+        <div class="buttons-cont" style="width:100%;">
+          <a href="{% url 'shop:products' %}" class="primary-btn" style="margin-bottom:.6rem;">Go to Products</a>
+          <a href="{% url 'shop:orders' %}" class="border-btn-primary2">Go to List Orders</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock scripts %}

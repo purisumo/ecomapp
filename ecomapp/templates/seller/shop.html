@@ -1,0 +1,154 @@
+{% extends '../includes/base.html' %}
+{% block title %}Shop{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+{% include "../includes/login-signup-modal.html" %}
+
+<section class="shop-page">
+  <div class="page-wrapper">
+    <div class="left-section">
+      <div class="filter-cont">
+        <input type="search" name="search-item" id="search-item" placeholder="Search items">
+
+        <select name="filter-item" id="filter-item" class="list-btn"></select>
+      </div>
+
+      <div class="divider">
+        <p>CART</p>
+        <hr>
+      </div>
+
+      <div class="cart-items">
+        {% for obj in products %}
+        <div class="item">
+          <img src="{{obj.image_url}}" alt="item-image" class="item-img" />
+
+          <div class="descriptions">
+            <p class="name text-clamp">{{obj.name}}</p>
+
+            <p class="price">Price: <span>₱{{obj.name}}</span></p>
+          </div>
+
+          <button class="icon-btn-delete2"><i class="bi bi-trash-fill"></i></button>
+        </div>
+      </div>
+      {% endfor %}
+
+      <a href="#" class="primary-btn">PROCEED TO CHECKOUT</a>
+    </div>
+
+    <div class="items-section">
+      <div class="item" data-id="156">
+        <img src="{% static 'images/upload/item-1.jpg' %}" alt="item-image" class="item-img" />
+
+        <div class="descriptions">
+          <p class="name text-clamp">Gold slim bangle</p>
+
+          <div class="wrap">
+            <p class="price">₱8,000</p>
+
+            <div class="rating">
+              <i class="bi bi-star-fill"></i>
+              <p>4.8</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item" data-id="222">
+        <img src="{% static 'images/upload/item-2.jpg' %}" alt="item-image" class="item-img" />
+
+        <div class="descriptions">
+          <p class="name text-clamp">Louis Vuitton bangle</p>
+
+          <div class="wrap">
+            <p class="price">₱7,850</p>
+
+            <div class="rating">
+              <i class="bi bi-star-fill"></i>
+              <p>4.9</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="item" data-id="333">
+        <img src="{% static 'images/upload/item-3.jpg' %}" alt="item-image" class="item-img" />
+
+        <div class="descriptions">
+          <p class="name text-clamp">Tree design gold necklace</p>
+
+          <div class="wrap">
+            <p class="price">₱9,500</p>
+
+            <div class="rating">
+              <i class="bi bi-star-fill"></i>
+              <p>4.6</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+<form method="post" class="modal item-info">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+
+    <div class="content">
+      <input type="hidden" name="item-id" id="item-id">
+      <div class="left-section">
+        <div class="item-img"></div>
+
+
+        <div class="button-cont">
+          <button class="border-btn-primary2 medium-btn" type="button">
+            Add to cart
+          </button>
+          <button class="primary-btn medium-btn" type="button">
+            Buy now
+          </button>
+        </div>
+      </div>
+
+      <div class="descriptions">
+        <p class="name">Sample Item ashjdgashdashdd sdds sddssd</p>
+        <p class="price">₱30</p>
+
+        <div class="seller">
+          <p class="label">Seller</p>
+
+          <a href="#" class="wrap">
+            <div class="seller-img"></div>
+
+            <div class="info">
+              <p class="seller-name">Boss Hesam Footer</p>
+
+              <div class="cont">
+                <div class="rating">
+                  <i class="bi bi-star-fill"></i>
+                  <p>4.8</p>
+                </div>
+
+                <div class="sold"><span>Total items sold: </span> 100</div>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <div class="details-cont">
+          <p class="label">Details</p>
+
+          <p class="details">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos ullam autem nisi eum harum
+            iure temporibus mollitia architecto? At officia rem iusto dolorem veritatis. Numquam, aperiam? Dolorum
+            incidunt laboriosam eos?</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/item_info.js' %}"></script>
+{% endblock scripts %}

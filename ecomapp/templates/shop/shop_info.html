@@ -1,0 +1,252 @@
+{% extends '../includes/base.html' %}
+{% block title %}Shop Info{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+
+<section class="customer-info-page">
+  <div class="page-wrapper">
+    <div class="left-section">
+      <div class="image-cont"><i class="bi bi-person-circle"></i></div>
+
+      <div class="user-info">
+        <p class="name">{{selected_shop.name}}</p>
+        <div class="wrap">
+          <div class="text-with-icon with-extra-text">
+            <i class="bi bi-star-fill"></i>
+            <p><span>{{selected_shop.rating}}</span> Ratings</p>
+          </div>
+          <p class="dot">●</p>
+          <div class="text-then-info"><span id="followers-count">{{followers_count}}</span> followers</div>
+        </div>
+        <div class="text-with-icon"><i class="bi bi-telephone-fill"></i> <p>{{selected_shop.seller.phone_number}}</p></div>
+        <div class="text-with-icon">
+          <i class="bi bi-geo-alt-fill"></i>
+          <p>{{ selected_shop.seller.address }}</p>
+        </div>
+
+        <div class="actions">
+          <div>
+            <meta name="csrf-token" content="{{ csrf_token }}">
+            <button class="primary-btn with-icon-btn" id="follow-btn" data-shop-id="{{ selected_shop.id }}" {% if not can_rate_this_shop %}style="width:100%"{% endif %}>
+              {% if is_following %}<i class="bi bi-dash-circle"></i>{% else %}<i class="bi bi-plus-circle"></i>{% endif %}
+              {% if is_following %}Unfollow{% else %}Follow{% endif %}</button>
+  
+            <button class="border-btn-primary2 with-icon-btn" data-modal="rate-shop" {% if not can_rate_this_shop %}disabled{% endif %}><i class="bi bi-star-fill"></i>Rate shop</a>
+          </div>
+
+          <a href="{% url 'shop:chat' %}" class="border-btn-primary2 with-icon-btn"><i class="bi bi-chat-dots-fill"></i>Message</a>
+
+          <div class="switch-cont">
+            <button class="primary-btn" data-cont="items">List of items</button>
+            <button class="primary-btn transparent" data-cont="ratings">Ratings</button>
+          </div>
+        </div>
+        
+        <div class="label-with-text"><span>Listed items: </span> {{ listed_items_count }}</div>
+        <div class="label-with-text"><span>Items sold: </span> {{ selected_shop.products_sold|default:0 }}</div>
+        <div class="label-with-text"><span>Items available: </span> {{ available_items_count }}</div>
+      </div>
+    </div>
+
+    <div class="items-section show-section {% if not products.exists %}empty-listing{% endif %}">
+      {% for product in products %}
+      <div class="item" 
+            data-id="{{ product.id }}"
+            data-name="{{ product.name|escapejs }}"
+            data-price="{{ product.price }}"
+            data-description="{{ product.description|escapejs }}"
+            data-image="{{ product.image.url|default:'/static/images/placeholder.jpg'|escapejs }}"
+            data-seller-name="{{ product.shop.name }}"
+            data-seller-rating="{{ product.shop.seller.rating|default:0 }}"
+            data-seller-products="{{ product.shop.products.count }}"
+            data-seller-followers="{{ product.shop.followers.count }}"
+            data-products-sold="{{ product.shop.products_sold|default:0 }}"
+            data-shop-id="{{ product.shop.id }}"
+            data-rating="{{ product.rating|default:'4.6' }}"
+            data-category-id="{{ product.category.id|default:0 }}"
+            data-material="{{ product.material }}"
+            data-type="{{ product.type }}"
+            data-is-in-cart="{{ product.is_in_cart }}"
+            data-is-available="{{ product.is_available }}">
+
+          <div style="position:relative;">
+            <img src="{{ product.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ product.name|escapejs }}" class="item-img" />
+            {% if not product.is_available %}<span class="item-not-available">Item not available</span>{% endif %}
+          </div>
+          <div class="descriptions">
+              <p class="name text-clamp">{{ product.name }}</p>
+              <div class="wrap">
+                  <p class="price">₱{{ product.price }}</p>
+                  {% comment %} <div class="rating">
+                      <i class="bi bi-star-fill"></i>
+                      <p>{{ product.rating|default:"4.6" }}</p>
+                  </div> {% endcomment %}
+              </div>
+          </div>
+      </div>
+      {% empty %}
+      <div class="empty-content">
+        <p>Currently, this seller has no <br>active listings.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="rates-section">
+      {% for review in shop_reviews %}
+      <div class="rates-item">
+        <div class="top-section">
+          <div class="seller-img">
+            <i class="bi bi-person-circle"></i>
+          </div>
+
+          <div class="content-wrap">
+            <p class="name">{{ review.customer.get_full_name|default:review.customer.username }}</p>
+            <div class="stars-wrap">
+              {% for i in "12345"|make_list %}
+                {% if forloop.counter <= review.rating %}
+                  <i class="bi bi-star-fill"></i>
+                {% else %}
+                  <i class="bi bi-star"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <p class="description">{{ review.description }}</p>
+      </div>
+
+      <hr class="line-separator">
+      {% empty %}
+      <div class="empty-content">
+        <p>This seller is just getting started <br>no reviews yet.</p>
+      </div>
+      {% endfor %}
+    </div>
+</section>
+
+<form method="post" class="modal item-info" id="item-info-modal">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+    
+    <div class="content">
+      <input type="hidden" name="item-id" id="item-id">
+
+      <div class="left-section">
+          <div class="item-img" style="object-fit: scale-down;">
+            <img src="{{ item.product.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ item.product.name }}" class="item-img" />
+          </div>
+          {% if request.user.is_authenticated and request.user.user_type == 'customer' %}
+            <div class="button-cont">
+              <button class="border-btn-primary2 medium-btn wishlist-btn" type="button" data-in-wishlist="false">Add to Wishlist</button>
+                <button class="primary-btn medium-btn add-to-cart" type="button">Add to Cart</button>
+                <!-- <button class="primary-btn medium-btn buy-now" type="button">Buy Now</button> -->
+            </div>
+          {% endif %}
+      </div>
+
+      <div class="descriptions">
+        <p class="name"></p>
+        <p class="price"><span class="currency">₱</span></p>
+        
+        <div class="seller">
+          <p class="label">Seller</p>
+          <a href="#" class="wrap"> 
+            <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+
+            <div class="info">
+              <p class="seller-name"></p>
+              
+              <div class="cont">
+                <div class="rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span></span>
+                </div>
+
+                <span class="line-span"></span>
+                <div class="products"><span></span> Products</div>
+                <span class="line-span"></span>
+                <div class="followers"><span></span> Followers</div>
+                <span class="line-span"></span>
+                <div class="products-sold"><span></span> Products sold</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        
+        <div class="details-cont">
+          <div class="category-material-wrap" style="display:flex; gap:5rem; margin-bottom:.2rem;">
+            <div class="material-cont">
+              <p class="label">Material: </p>
+              <p class="material"></p>
+            </div>
+            <div class="category-cont">
+              <p class="label">Type: </p>
+              <p class="type"></p>
+            </div>
+          </div>
+
+          <p class="label">Details</p>
+          <p class="details"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% if can_rate_this_shop %}
+<form method="post" class="modal rate-shop" id="rate-shop-modal">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+    
+    <div class="content">
+      <input type="hidden" name="shop-id" id="{{selected_shop.id}}">
+      
+      <p class="title">Rate shop</p>
+
+      <div class="modal-shop-info">
+        <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+        
+        <div class="desc">
+          <p class="shop-name">{{selected_shop.name}}</p>
+          <div class="text-with-icon"><i class="bi bi-telephone-fill"></i> <p>{{selected_shop.seller.phone_number}}</p></div>
+        </div>
+      </div>
+
+      <div class="rating-content">
+        <div class="rating-star-buttons">
+          <button type="button" data-index="1"><i class="bi bi-star"></i></button>
+          <button type="button" data-index="2"><i class="bi bi-star"></i></button>
+          <button type="button" data-index="3"><i class="bi bi-star"></i></button>
+          <button type="button" data-index="4"><i class="bi bi-star"></i></button>
+          <button type="button" data-index="5"><i class="bi bi-star"></i></button>
+        </div>
+
+        <input type="hidden" name="rating" id="rating-value">
+
+        <div class="input-cont">
+          <label for="description">Description</label>
+          <textarea name="description" id="description" cols="30" rows="8"></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div class="action-buttons-cont">
+      <button class="delete-btn" type="button">Cancel</button>
+      <button class="primary-btn" type="submit" name="rate-shop">Submit</button>
+    </div>
+  </div>
+</form>
+{% endif %}
+
+<!-- Serialize wishlist_products as JSON -->
+{{ wishlist_products|json_script:"wishlist-products" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/customer/item_info.js' %}"></script>
+<script src="{% static 'js/customer/shop_info.js' %}"></script>
+{% endblock scripts %}

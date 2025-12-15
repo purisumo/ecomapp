@@ -1,0 +1,12 @@
+{% extends 'includes/base.html' %}
+{% load static %}
+{% block content %}
+<section class="shop-page">
+  
+<div class="signup-container">
+    <h2>Logged Out</h2>
+    <p>You have been successfully logged out.</p>
+    <p><a href="{% url 'shop:login' %}">Log in again</a> | <a href="{% url 'shop:signup' %}">Sign up</a></p>
+</div>  
+</section>
+{% endblock %}

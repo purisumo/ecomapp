@@ -1,0 +1,365 @@
+{% extends './includes/base.html' %}
+{% block title %}List of orders{% endblock %}
+{% load static %}
+{% block content %}
+
+{% if user.user_type == 'customer' %}
+{% include "./includes/navbar.html" %}
+{% else %}
+{% include "./includes/sidebar.html" %}
+{% endif %}
+
+<section class="list-of-orders-page {% if user.user_type != 'customer' %}seller-content{% endif %}">
+  <div class="page-wrapper">
+    <div class="page-container">
+      <div class="sub-navbar">
+        <div class="title">
+          <p>List of Orders</p>
+        </div>
+
+        <div class="actions">
+          <button class="border-btn-primary2 selected" data-view=".pending-section">Pending {% if orders.pending|length > 0 %}<span class="counter-in-btn">{{orders.pending|length}}</span>{% endif %}</button>
+          <button class="border-btn-primary2" data-view=".shipped-section">Shipped {% if orders.shipped|length > 0 %}<span class="counter-in-btn">{{orders.shipped|length}}</span>{% endif %}</button>
+          <button class="border-btn-primary2" data-view=".completed-section">Completed {% if orders.completed|length > 0 %}<span class="counter-in-btn">{{orders.completed|length}}</span>{% endif %}</button>
+          <button class="border-btn-primary2" data-view=".cancelled-section">Cancelled {% if orders.cancelled|length > 0 %}<span class="counter-in-btn">{{orders.cancelled|length}}</span>{% endif %}</button>
+        </div>
+      </div>
+
+      <div class="content-section pending-section show-section">
+        {% for order in orders.pending %}
+          {% with order.items.first as first_item %}
+          <div class="order-item">
+            <div class="image-container" style="height:fit-content; margin:auto 0;">
+              <img src="{{ first_item.product.image.url }}" width="150" height="150">
+            </div>
+  
+            <div class="item-info">
+              <p class="item-name">{{ first_item.product.name }}</p>
+  
+              <a class="seller">
+                <div class="seller-img">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+  
+                <div>
+                  <p class="seller-name">{{ order.customer.first_name }} {{ order.customer.last_name }}</p>
+  
+                  <p class="user-role">Customer</p>
+                </div>
+              </a>
+            </div>
+  
+            <div class="mid-item-section">
+              <div class="label-with-value">
+                <p class="label">Order no.: </p>
+                <p class="value">{{ order.order_number }}</p>
+              </div>
+              <div class="label-with-value">
+                <p class="label">Order placed: </p>
+                <p class="value">{{ order.created_at }}</p>
+              </div>
+  
+              <div class="label-with-value estimated-cont">
+                <p class="label">Estimated time arrival:</p>
+                <p class="value">{{ order.estimated_time_arrival }}</p>
+              </div>
+            </div>
+  
+            <div class="more-info-wrap">
+              <p class="status pending">Pending</p>
+  
+              <div class="computation-cont">
+                <div class="label-with-value">
+                  <p class="label">Price: </p>
+                  <p class="price"><span class="currency">₱</span>{{ first_item.product.price }}</p>
+                </div>
+  
+                <div class="label-with-value">
+                  <p class="label">Delivery fee: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
+                </div>
+  
+                <div class="label-with-value total">
+                  <p class="label">Total: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.total_amount }}</p>
+                </div>
+              </div>
+  
+              <div class="actions">
+                {% if request.user.user_type == 'seller' and order.shop.seller == request.user %}
+                <button class="primary-btn" data-modal="approve-order" data-id="{{ order.id }}">Approve</button>
+                {% endif %}
+                <button class="border-btn-delete" data-modal="cancel-order" data-id="{{ order.id }}">Cancel</button>
+              </div>
+            </div>
+          </div>
+  
+          <hr class="line-separator">
+          {% endwith %}
+        {% empty %}
+          <div class="empty-content" style="margin:20% 0;">
+            <p>You have no Pending customer's orders at the moment.</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="content-section shipped-section">
+        {% for order in orders.shipped %}
+          {% with order.items.first as first_item %}
+          <div class="order-item">
+            <div class="image-container" style="height:fit-content; margin:auto 0;">
+              <img src="{{ first_item.product.image.url }}" width="150" height="150">
+            </div>
+  
+            <div class="item-info">
+              <p class="item-name">{{ first_item.product.name }}</p>
+  
+              <a href="{% url 'shop:shop_info' order.customer.id %}" class="seller">
+                <div class="seller-img">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+  
+                <div>
+                  <p class="seller-name">{{ order.customer.first_name }} {{ order.customer.last_name }}</p>
+  
+                  <p class="user-role">Customer</p>
+                </div>
+              </a>
+            </div>
+  
+            <div class="mid-item-section">
+              <div class="label-with-value">
+                <p class="label">Order no.: </p>
+                <p class="value">{{ order.order_number }}</p>
+              </div>
+              <div class="label-with-value">
+                <p class="label">Order placed: </p>
+                <p class="value">{{ order.created_at }}</p>
+              </div>
+  
+              <div class="label-with-value estimated-cont">
+                <p class="label">Estimated time arrival:</p>
+                <p class="value">{{ order.estimated_time_arrival }}</p>
+              </div>
+            </div>
+  
+            <div class="more-info-wrap">
+              <p class="status shipped">Shipped</p>
+  
+              <div class="computation-cont">
+                <div class="label-with-value">
+                  <p class="label">Price: </p>
+                  <p class="price"><span class="currency">₱</span>{{ first_item.product.price }}</p>
+                </div>
+  
+                <div class="label-with-value">
+                  <p class="label">Delivery fee: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
+                </div>
+  
+                <div class="label-with-value total">
+                  <p class="label">Total: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.total_amount }}</p>
+                </div>
+              </div>
+  
+              <div class="actions">
+                <button class="primary-btn" data-modal="complete-order" data-id="{{ order.id }}">Complete</button>
+              </div>
+            </div>
+          </div>
+  
+          <hr class="line-separator">
+          {% endwith %}
+        {% empty %}
+          <div class="empty-content" style="margin:20% 0;">
+            <p>You have no Shipped customer's orders at the moment.</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="content-section completed-section">
+        {% for order in orders.completed %}
+          {% with order.items.first as first_item %}
+          <div class="order-item">
+            <div class="image-container" style="height:fit-content; margin:auto 0;">
+              <img src="{{ first_item.product.image.url }}" width="150" height="150">
+            </div>
+  
+            <div class="item-info">
+              <p class="item-name">{{ first_item.product.name }}</p>
+  
+              {% if user.user_type == 'customer' %}
+                <a href="{% url 'shop:shop_info' order.shop.id %}" class="seller">
+              {% else %}
+                <a href="{% url 'shop:shop_info' order.customer.id %}" class="seller">
+              {% endif %}
+
+                <div class="seller-img">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+  
+                <div>
+                  <p class="seller-name">{% if user.user_type == 'customer' %}{{order.shop.name}}{% else %}{{ order.customer.first_name }} {{ order.customer.last_name }}{% endif %}</p>
+  
+                  <p class="user-role">{% if user.user_type == 'customer' %}Shop{% else %}Customer{% endif %}</p>
+                </div>
+              </a>
+            </div>
+  
+            <div class="mid-item-section">
+              <div class="label-with-value">
+                <p class="label">Order no.: </p>
+                <p class="value">{{ order.order_number }}</p>
+              </div>
+              <div class="label-with-value">
+                <p class="label">Order placed: </p>
+                <p class="value">{{ order.created_at }}</p>
+              </div>
+  
+              <div class="label-with-value estimated-cont">
+                <p class="label">Estimated time arrival:</p>
+                <p class="value">{{ order.estimated_time_arrival }}</p>
+              </div>
+            </div>
+  
+            <div class="more-info-wrap">
+              <p class="status completed">Completed</p>
+  
+              <div class="computation-cont">
+                <div class="label-with-value">
+                  <p class="label">Price: </p>
+                  <p class="price"><span class="currency">₱</span>{{ first_item.product.price }}</p>
+                </div>
+  
+                <div class="label-with-value">
+                  <p class="label">Delivery fee: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
+                </div>
+  
+                <div class="label-with-value total">
+                  <p class="label">Total: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.total_amount }}</p>
+                </div>
+
+                
+                <div class="actions">
+                  {% if user.user_type == 'customer' and order.can_rate_shop %}
+                    <a href="{% url 'shop:shop_info' order.shop.id %}" class="primary-btn">Rate shop</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <hr class="line-separator">
+          {% endwith %}
+        {% empty %}
+          <div class="empty-content" style="margin:20% 0;">
+            <p>You have no Completed customer's orders at the moment.</p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="content-section cancelled-section">
+        {% for order in orders.cancelled %}
+          {% with order.items.first as first_item %}
+          <div class="order-item">
+            <div class="image-container" style="height:fit-content; margin:auto 0;">
+              <img src="{{ first_item.product.image.url }}" width="150" height="150">
+            </div>
+  
+            <div class="item-info">
+              <p class="item-name">{{ first_item.product.name }}</p>
+  
+              <a href="{% url 'shop:shop_info' order.customer.id %}" class="seller">
+                <div class="seller-img">
+                  <i class="bi bi-person-circle"></i>
+                </div>
+  
+                <div>
+                  <p class="seller-name">{{ order.customer.first_name }} {{ order.customer.last_name }}</p>
+  
+                  <p class="user-role">Customer</p>
+                </div>
+              </a>
+            </div>
+  
+            <div class="mid-item-section">
+              <div class="label-with-value">
+                <p class="label">Order no.: </p>
+                <p class="value">{{ order.order_number }}</p>
+              </div>
+              <div class="label-with-value">
+                <p class="label">Order placed: </p>
+                <p class="value">{{ order.created_at }}</p>
+              </div>
+  
+              <div class="label-with-value estimated-cont">
+                <p class="label">Estimated time arrival:</p>
+                <p class="value">{{ order.estimated_time_arrival }}</p>
+              </div>
+            </div>
+  
+            <div class="more-info-wrap">
+              <p class="status cancelled">Cancelled</p>
+  
+              <div class="computation-cont">
+                <div class="label-with-value">
+                  <p class="label">Price: </p>
+                  <p class="price"><span class="currency">₱</span>{{ first_item.product.price }}</p>
+                </div>
+  
+                <div class="label-with-value">
+                  <p class="label">Delivery fee: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
+                </div>
+  
+                <div class="label-with-value total">
+                  <p class="label">Total: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.total_amount }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <hr class="line-separator">
+          {% endwith %}
+        {% empty %}
+          <div class="empty-content" style="margin:20% 0;">
+            <p>You have no Cancelled customer's orders at the moment.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<form class="modal confirmation" method="post" id="update-order-status-modal">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+
+    <div class="modal-content">
+      <input type="hidden" id="selected-id" name='selected-id'>
+
+      <div class="content-wrap">
+        <p>Are you sure you want to cancel this <b>order</b>?</p>
+      </div>
+
+      <div class="button-cont-below">
+        <button class="border-btn-primary2 with-icon-btn cancel-btn" type="button">
+          Cancel
+        </button>
+        <button class="delete-btn" type="submit">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/list_of_orders.js' %}"></script>
+{% endblock scripts %}

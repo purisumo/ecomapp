@@ -1,0 +1,49 @@
+{% extends '../includes/base.html' %} 
+{% load static %} 
+{% block title %}Admin | Home{% endblock %} 
+{% block content %} 
+{% include "../includes/navbar.html" %}
+<section class="admin-home-page">
+  <div class="wrapper">
+    <div class="admin-dashboard-stats">
+      <!-- Today's Orders -->
+      <div class="stat-card">
+        <h3>Today's Orders</h3>
+        <p>{{ today_orders }}</p>
+      </div>
+
+      <!-- Weekly Orders -->
+      <div class="stat-card">
+        <h3>Weekly Orders</h3>
+        <p>{{ weekly_orders }}</p>
+      </div>
+
+      <!-- Yearly Orders -->
+      <div class="stat-card">
+        <h3>Yearly Orders</h3>
+        <p>{{ yearly_orders }}</p>
+      </div>
+
+      <!-- Total Users -->
+      <div class="stat-card">
+        <h3>Total Users</h3>
+        <p>{{ total_users }}</p>
+      </div>
+
+      <!-- Total Products Sold -->
+      <div class="stat-card">
+        <h3>Total Products Selling</h3>
+        <p>{{ total_products_selling }}</p>
+      </div>
+
+      <!-- Total Revenue -->
+      <div class="stat-card">
+        <h3>Total Revenue</h3>
+        <p>₱{{ total_revenue|floatformat:2 }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %} {% block scripts %}
+<script src="{% static 'js/navbar.js' %}"></script>
+{% endblock %}

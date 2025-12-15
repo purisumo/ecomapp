@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCash Payment - Demo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .gcash-container {
+            background: linear-gradient(135deg, #004AAD, #0066CC);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gcash-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        .gcash-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #004AAD, #0066CC);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            margin: 0 auto 20px;
+        }
+        .amount-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #004AAD;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .btn-gcash {
+            background: linear-gradient(135deg, #004AAD, #0066CC);
+            border: none;
+            border-radius: 10px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .btn-gcash:hover {
+            background: linear-gradient(135deg, #003a8a, #0052a3);
+        }
+    </style>
+</head>
+<body>
+    <div class="gcash-container">
+        <div class="gcash-card text-center">
+            <div class="gcash-logo">GC</div>
+            <h2 class="mb-3">GCash Payment</h2>
+            <p class="text-muted">Complete your payment securely</p>
+            
+            <div class="amount-display">₱{{ payment.amount }}</div>
+            
+            <div class="mb-4">
+                <small class="text-muted">
+                    Reference: {{ reference_number }}<br>
+                    Order ID: {{ payment.order.id }}
+                </small>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Demo Mode:</strong> This is a simulation. Choose your test result below.
+            </div>
+            
+            <div class="d-grid gap-2">
+                <a href="{% url 'demo_gcash_success' payment.id %}" class="btn btn-success btn-lg">
+                    <i class="fas fa-check-circle"></i> Simulate Successful Payment
+                </a>
+                <a href="{% url 'demo_gcash_cancel' payment.id %}" class="btn btn-danger btn-lg">
+                    <i class="fas fa-times-circle"></i> Simulate Failed Payment
+                </a>
+            </div>
+            
+            <div class="mt-4">
+                <small class="text-muted">
+                    In production, this would redirect to the actual GCash payment interface.
+                </small>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

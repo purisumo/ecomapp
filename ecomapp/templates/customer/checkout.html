@@ -1,0 +1,186 @@
+{% extends '../includes/base.html' %}
+{% block title %}Checkout{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+
+<section class="checkout-page">
+  <div class="page-wrapper">
+    <form class="page-container" id="checkout-form" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div class="items-section">
+        {% if cart.items.exists %}
+          {% for item in cart.items.all %}
+            <div class="item">
+              <div class="image-container">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="120"/>
+              </div>
+    
+              <div class="item-info">
+                <p class="item-name">{{ item.product.name }}</p>
+                <p class="price"><span class="currency">₱</span>{{ item.product.price }}</p>
+    
+                <a href="{% url 'shop:shop_info' item.product.shop.id %}" class="seller">
+                  <div class="seller-img">
+                    <i class="bi bi-person-circle"></i>
+                  </div>
+                  <p class="seller-name">{{ item.product.shop.name }}</p>
+                </a>
+              </div>
+            </div>
+            <hr class="line-separator">
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <hr class="line-separator y-axis">
+
+      <div class="payment-section">
+        <div class="user-info">
+          <div class="text-with-icon"><i class="bi bi-person-fill"></i>
+            <p>{{request.user.first_name}} {% if request.user.middle_name %}{{request.user.middle_name}}, {% endif %}{{request.user.last_name}}</p>
+          </div>
+          <div class="text-with-icon"><i class="bi bi-telephone-fill"></i>
+            <p>{{request.user.phone_number}}</p>
+          </div>
+          <div class="text-with-icon">
+            <i class="bi bi-geo-alt-fill"></i>
+            <p>{{request.user.address}}</p>
+          </div>
+          <a href="{% url 'shop:profile' %}" class="float-icon-btn"><i class="bi bi-pen"></i></a>
+        </div>
+
+        <div class="payment">
+          <p class="title">Mode of Payment :</p>
+          <div class="options-wrapper">
+            <label class="option">
+              <input type="radio" name="mop" value="gcash" id="gcash-radio">
+              <p class="button"><img class="icon-img" src="{% static 'images/icons/gcash-logo.png' %}" alt="gcash-img">
+                <span>GCASH</span>
+              </p>
+            </label>
+            <label class="option cod">
+              <input type="radio" name="mop" value="COD" id="cod-radio" checked>
+              <p class="button"><img class="icon-img" src="{% static 'images/icons/cod-logo.jpg' %}" alt="cod-img">
+                <span>Cash on Delivery</span>
+              </p>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <hr class="line-separator y-axis">
+
+      <div class="computation-section">
+        <div class="status-info-green">
+          <p>Estimated arrival:</p>
+          <p class="value">{{eta_range}}</p>
+        </div>
+
+        <div class="content-wrapper">
+          <div class="label-with-value">
+            <p class="label">Total items: </p>
+            <p>{{total_items}}</p>
+          </div>
+
+          <div class="label-with-value">
+            <p class="label">Subtotal: </p>
+            <p class="price"><span class="currency">₱</span>{{subtotal}}</p>
+          </div>
+
+          <div class="label-with-value">
+            <p class="label">Delivery fee: </p>
+            <p class="price" style="text-align: right"><span class="currency">₱</span>{{delivery_fee_per_item}} x {{total_items}} = <span class="currency">₱</span>{{total_delivery_fee}}</p>
+          </div>
+
+          <div class="label-with-value total">
+            <p class="label">Total: </p>
+            <p class="price"><span class="currency">₱</span>{{total}}</p>
+          </div>
+        </div>
+
+        <!-- FIXED: Changed type to button and added correct ID -->
+        <button type="button" id="place-order-btn" class="primary-btn medium-btn">Place order</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/profile.js' %}"></script>
+<script>
+  document.getElementById('place-order-btn').addEventListener('click', async function(e) {
+    e.preventDefault();
+
+    const button = this;
+    const originalText = button.textContent;
+    const formEl = document.getElementById('checkout-form');
+
+    // read csrf token from hidden input inserted by {% csrf_token %}
+    const csrfInput = formEl.querySelector('input[name="csrfmiddlewaretoken"]');
+    const csrfValue = csrfInput ? csrfInput.value : null;
+
+    // append formdata and ensure csrfmiddlewaretoken present
+    const formData = new FormData(formEl);
+    if (csrfValue) formData.set('csrfmiddlewaretoken', csrfValue);
+
+    // check mode of payment value (will be sent by formData already)
+    const selected = formEl.querySelector('input[name="mop"]:checked');
+    const selectedPayment = selected ? selected.value : null;
+
+    if (selectedPayment === null) {
+      alert('Select a payment method.');
+      return;
+    }
+
+    if (selectedPayment.toLowerCase() === 'gcash' || selectedPayment === 'gcash') {
+      button.disabled = true;
+      button.textContent = 'Creating payment session...';
+
+      try {
+        const response = await fetch('{% url "shop:checkout" %}', {
+          method: 'POST',
+          body: formData,
+          credentials: 'same-origin',            // important to send cookies
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest' // keep this
+            // DO NOT set Content-Type when sending FormData
+          }
+        });
+
+        const text = await response.text();    // read raw body for debugging
+        console.log('Status:', response.status);
+        console.log('Response body:', text);
+
+        // Try parse JSON if status is 200/201 etc - otherwise show text
+        if (response.ok) {
+          const data = JSON.parse(text);
+          if (data.success) {
+            window.location.href = data.checkout_url;
+            return;
+          } else {
+            alert(data.message || 'Failed to initialize payment');
+          }
+        } else {
+          // show server message for diagnosis
+          alert('Server returned ' + response.status + '. See console for details.');
+        }
+
+      } catch (err) {
+        console.error('Fetch error:', err);
+        alert('Network error. See console.');
+      } finally {
+        button.disabled = false;
+        button.textContent = originalText;
+      }
+
+    } else {
+      // For COD: submit standard POST (will include csrf hidden input)
+      formEl.submit();
+    }
+  });
+</script>
+
+{% endblock scripts %}

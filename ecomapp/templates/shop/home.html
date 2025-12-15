@@ -1,0 +1,42 @@
+{% extends '../includes/base.html' %}
+{% block title %}Home{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+
+<div class="home-page">
+  <section class="landing">
+    <div class="page-wrapper">
+      <p>DEE TOUCH OF GOLD</p>
+      <p>Stay Golden with Dee Touch of Gold</p>
+
+      <!-- <img src="{% static 'images/icons/landing-item.png' %}" alt="item-image" /> -->
+    </div>
+
+  </section>
+
+  <section class="contact-details-wrap">
+    <div class="page-wrapper">
+      <p class="title">Contact Details</p>
+
+      <div class="content-wrapper">
+        <div>
+          <p><span>Owner: </span>Dinaflor Tagiobon</p>
+          <p><span>Facebook Page: </span>Dee Touch of Gold</p>
+        </div>
+
+        <div>
+          <p><span>Email: </span>flordina1982@gmail.com</p>
+          <p><span>Phone: </span>0917-843-6156</p>
+        </div>
+      </div>
+
+      <p><span>Location: </span>Tetuan, Don Alfaro Street, Zamboanga City</p>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock scripts %}

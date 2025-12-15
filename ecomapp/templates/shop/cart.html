@@ -1,0 +1,111 @@
+{% extends '../includes/base.html' %}
+{% load cart_extras %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+{% block css %}
+<style>
+.shop-page {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+}
+
+.signup-container.hero {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  max-width: 800px;
+  margin: auto;
+}
+
+.signup-container.hero h2 {
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f2f2f2;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.cart-item p {
+  flex: 1;
+  margin: 0;
+  font-size: 1rem;
+  color: #444;
+}
+
+.cart-item input.quantity {
+  width: 60px;
+  padding: 6px;
+  margin: 0 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.delete-cart-item {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.delete-cart-item:hover {
+  background-color: #c0392b;
+}
+
+a[href*="create_order"] {
+  display: inline-block;
+  background-color: #27ae60;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.3s ease;
+  margin-top: 1rem;
+}
+
+a[href*="create_order"]:hover {
+  background-color: #1e8f4d;
+}
+
+.error {
+  color: #e74c3c;
+  font-weight: 500;
+}
+</style>
+{% endblock %}
+<section class="shop-page">
+<div class="signup-container hero">
+    <h2>Your Cart</h2>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% elif cart.items.exists %}
+        <div id="cart-items">
+            {% for item in cart.items.all %}
+                <div class="cart-item" data-id="{{ item.id }}">
+                    <p>{{ item.product.name }} - ${{ item.product.price }} x <input type="number" class="quantity" value="{{ item.quantity }}" min="1"> = ${{ item.quantity|floatformat:2|multiply:item.product.price }}</p>
+                    <button class="delete-cart-item">Remove</button>
+                </div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'shop:create_order' %}">Proceed to Checkout</a>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+</div>
+</section>
+{% endblock %}

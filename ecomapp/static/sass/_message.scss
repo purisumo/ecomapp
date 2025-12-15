@@ -1,0 +1,257 @@
+.message-page .page-wrapper {
+  justify-content: center;
+
+  .page-container {
+    height: 100%;
+    width: 700px;
+    overflow: hidden;
+    display: flex;
+    justify-self: center;
+    gap: 1rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: $box-shadow3;
+    padding: 1.2rem .8rem;
+    transition: .5s ease;
+
+    &.is-selected-message {
+      width: 100%;
+
+      .left-section {
+        width: 410px;
+      }
+
+      .right-section {
+        width: 100%;
+      }
+    }
+
+    .left-section {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      width: 100%;
+      gap: 1rem;
+      transition: .5s ease;
+
+      .top-wrap {
+        padding: 0 .4rem;
+
+        .title {
+          font-size: 1.6rem;
+          font-weight: 500;
+          margin-bottom: 1rem;
+        }
+      }
+
+      .messages-list-cont {
+        margin-top: .4rem;
+        padding: 0 .4rem;
+        overflow-y: auto;
+
+        .empty-content {
+          margin-top: 30%;
+        }
+
+        .message-list-item {
+          display: flex;
+          align-items: center;
+          gap: .6rem;
+          padding: .8rem;
+          border-radius: .6rem;
+          transition: .3s ease;
+          cursor: pointer;
+
+          &:hover {
+            background: $background-color;
+
+            .name {
+              color: $primary-color;
+              text-decoration: underline;
+            }
+          }
+
+          &.unread {
+
+            :is(.content-info,
+              .date-cont) p {
+              font-weight: 500;
+              color: $text-color !important;
+            }
+          }
+
+          &.selected {
+            background: $background-color-hover;
+          }
+
+          .content-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+
+            .name {
+              font-weight: 500;
+              font-size: 1.2rem;
+              transition: .3s ease;
+            }
+
+            .message-prev {
+              color: $border-color;
+              width: 100%;
+              display: -webkit-box;
+              -webkit-line-clamp: 2;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+          }
+
+          .date-cont {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+
+            span {
+              background: $primary-color;
+              border-radius: 50%;
+              height: 8px;
+              width: 8px;
+            }
+
+            div {
+              color: $border-color;
+              font-size: .8rem;
+              text-align: right;
+            }
+          }
+        }
+      }
+    }
+
+    .right-section {
+      display: flex;
+      flex-direction: column;
+      gap: .6rem;
+      width: 0;
+      overflow: hidden;
+      transition: 1s ease;
+
+      .top-wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        .seller {
+          display: flex;
+          gap: .6rem;
+          align-items: center;
+
+          .seller-img {
+            width: 60px;
+            height: 60px;
+
+            i {
+              font-size: 60px;
+            }
+          }
+
+          .name {
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: $text-color;
+
+            &:hover {
+              color: $primary-color;
+              text-decoration: underline;
+            }
+          }
+        }
+      }
+
+      .message-content-wrap {
+        height: 100%;
+        width: 100%;
+        background: #e6e6e6;
+        border-radius: 8px;
+        overflow-y: auto;
+        padding: .8rem;
+        box-shadow: $box-shadow3 inset;
+        display: flex;
+        flex-direction: column;
+        gap: .8rem;
+
+        .date {
+          font-size: .8rem;
+          color: $border-color;
+          text-align: center;
+        }
+
+        .messages-cont {
+          display: flex;
+          flex-direction: column;
+          gap: .4rem;
+
+          .message-content {
+            display: flex;
+            gap: .4rem;
+            align-items: end;
+            width: 80%;
+            margin-bottom: .6rem;
+
+            &:last-child .message {
+              border-bottom-left-radius: 0;
+            }
+
+            .message {
+              background: #fff;
+              padding: .6rem;
+              border-radius: 8px;
+            }
+
+            .time {
+              color: $border-color;
+              font-size: .8rem;
+              text-wrap: nowrap;
+            }
+          }
+
+          &.customer {
+            align-items: end;
+
+            .message-content {
+              flex-direction: row-reverse;
+
+              &:last-child .message {
+                border-radius: .6rem;
+                border-bottom-right-radius: 0;
+              }
+
+              .message {
+                background: $background-color-hover;
+              }
+            }
+          }
+        }
+      }
+
+      .bottom-wrap {
+        display: flex;
+        gap: .4rem;
+
+        textarea {
+          resize: none;
+          border-radius: 8px;
+        }
+
+        button {
+          margin: 0 .2rem;
+        }
+      }
+    }
+  }
+}
+
+.message-page.seller-content .page-wrapper {
+  align-items: center;
+}

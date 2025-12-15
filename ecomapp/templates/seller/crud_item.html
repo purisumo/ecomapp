@@ -1,0 +1,127 @@
+{% extends '../includes/base.html' %}
+{% block title %}Listed Items{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/sidebar.html" %}
+{% block css %}
+<style>
+.dashboard {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.primary-btn {
+  padding: 10px 16px;
+  background-color: #3498db;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.primary-btn:hover {
+  background-color: #2980b9;
+}
+
+.primary-btn.small-btn {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+thead {
+  background: #2c3e50;
+  color: #fff;
+}
+
+thead th {
+  padding: 14px;
+  text-align: left;
+}
+
+tbody td {
+  padding: 14px;
+  border-top: 1px solid #eee;
+  vertical-align: top;
+}
+
+.message {
+  padding: 4px 0;
+}
+
+.message.sent {
+  color: #555;
+}
+
+.message.received {
+  color: #000;
+  font-weight: 500;
+}
+
+small {
+  color: #888;
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+</style>
+{% endblock %}
+<section class="crud_item seller-content">
+  <form class="page-wrapper" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="sub-navbar">
+      <p class="page-title">List new item</p>
+      <button class="primary-btn" type="submit">List item</button>
+    </div>
+
+    <div class="content">
+      <div class="image-cont">
+        <img id="output" width="200" style="display: none;">
+        <span class="item-img">Upload an image <i class="bi bi-arrow-down"></i></span>
+        <input type="file" name="image" id="item_image_file" accept="image/*">
+      </div>
+
+      <div class="item-infos">
+        <div class="input-cont">
+          <label for="name">Name</label>
+          <input type="text" name="name" id="f-name">
+        </div>
+        <div class="input-cont">
+          <label for="price">Price</label>
+          <input type="number" name="price" id="price">
+        </div>
+        <div class="input-cont">
+          <label for="description">Description</label>
+          <input type="text" class="desc-input" name="description" id="description">
+        </div>
+      </div>
+    </div>
+  </form>
+</section>
+{% endblock %}
+
+{% block scripts %}
+{% comment %}
+<script src="{% static 'js/customer/navbar.js' %}"></script> {% endcomment %}
+{% endblock scripts %}
