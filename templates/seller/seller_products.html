@@ -1,0 +1,144 @@
+{% extends '../includes/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/sidebar.html" %}
+{% block css %}
+<style>
+.dashboard {
+  padding: 2rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.primary-btn {
+  padding: 10px 16px;
+  background-color: #3498db;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.primary-btn:hover {
+  background-color: #2980b9;
+}
+
+.primary-btn.small-btn {
+  padding: 6px 12px;
+  font-size: 0.9rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  background-color: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+thead {
+  background: #2c3e50;
+  color: #fff;
+}
+
+thead th {
+  padding: 14px;
+  text-align: left;
+}
+
+tbody td {
+  padding: 14px;
+  border-top: 1px solid #eee;
+  vertical-align: top;
+}
+
+.message {
+  padding: 4px 0;
+}
+
+.message.sent {
+  color: #555;
+}
+
+.message.received {
+  color: #000;
+  font-weight: 500;
+}
+
+small {
+  color: #888;
+  display: block;
+  font-size: 0.8rem;
+  margin-top: 2px;
+}
+</style>
+{% endblock %}
+
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<section class="dashboard seller-content px-6 py-8">
+    <div class="max-w-7xl mx-auto">
+        <h2 class="text-2xl font-semibold mb-6 text-gray-800">{{ shop.name }} Products</h2>
+        <li style="margin-bottom: 20px;" ><a class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium" href="{% url 'shop:seller_categories' %}">➕ Create Category</a></li>
+        {% if error %}
+            <p class="text-red-600 bg-red-100 p-3 rounded-md mb-4">{{ error }}</p>
+        {% else %}
+            <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+                <a href="{% url 'shop:add_product' %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">➕ Add New Product</a>
+                <a href="{% url 'shop:seller_dashboard' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium">← Back to Dashboard</a>
+            </div>
+
+            {% if products.exists %}
+            <div class="overflow-x-auto bg-white shadow-md rounded-xl">
+                <table class="min-w-full text-sm text-left text-gray-700">
+                    <thead class="bg-gray-100 uppercase text-xs font-semibold text-gray-700">
+                        <tr>
+                            <th class="px-4 py-3">Name</th>
+                            <th class="px-4 py-3">Price</th>
+                            <th class="px-4 py-3">Stock</th>
+                            <th class="px-4 py-3">Category</th>
+                            <th class="px-4 py-3">Available</th>
+                            <th class="px-4 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for product in products %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 font-medium">{{ product.name }}</td>
+                            <td class="px-4 py-3 text-green-600 font-semibold">₱{{ product.price|floatformat:2 }}</td>
+                            <td class="px-4 py-3">{{ product.stock }}</td>
+                            <td class="px-4 py-3">{{ product.category.name|default:"No Category" }}</td>
+                            <td class="px-4 py-3">{{ product.is_available|yesno:"Yes,No" }}</td>
+                            <td class="px-4 py-3 flex gap-2">
+                                <a href="{% url 'shop:edit_product' product.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm">Edit</a>
+                                <form method="post" action="{% url 'shop:delete_product' product.id %}" onsubmit="return confirm('Are you sure you want to delete {{ product.name }}?')" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-gray-500 mt-6">No products available. <a href="{% url 'shop:add_product' %}" class="text-blue-600 hover:underline">Add a product</a>.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

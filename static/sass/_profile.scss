@@ -1,0 +1,49 @@
+.profile-page .page-wrapper {
+  justify-content: center;
+
+  .page-container {
+    width: 100%;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: $box-shadow3;
+    padding: 1.2rem;
+    padding-bottom: 1.8rem;
+    display: flex;
+    flex-direction: column;
+
+    .content-section {
+      display: flex;
+      height: 100%;
+      flex-direction: column;
+      gap: 4rem;
+      align-items: center;
+
+      .profile-info-wrap {
+        display: flex;
+        width: 100%;
+        justify-content: space-evenly;
+
+        .profile-info-cont {
+          display: flex;
+          flex-direction: column;
+          gap: 2rem;
+          width: 350px;
+        }
+      }
+    }
+
+    .modal.change-password .modal-container {
+      min-width: 400px;
+
+      .content-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 1.6rem;
+      }
+    }
+  }
+}
+
+.profile-page.seller-content .page-wrapper .profile-info-cont {
+  width: 280px !important;
+}

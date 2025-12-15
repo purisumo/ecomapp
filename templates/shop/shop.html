@@ -1,0 +1,119 @@
+{% extends '../includes/base.html' %}
+{% block title %}Shop{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+
+
+<section class="shop-page">
+  <div class="page-wrapper">
+    <div class="left-section">
+      <div class="filter-cont">
+        <input type="search" name="search-item" id="search-item" placeholder="Search items">
+        <select name="filter-item" id="filter-item" class="list-btn">
+          <option value="">All Categories</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="divider">
+        <p>CART</p>
+        <hr>
+      </div>
+
+      <div class="cart-items">
+        {% if cart_items.exists %}
+          {% for item in cart_items %}
+            <div class="item" data-id="{{ item.product.id }}">
+              <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-img" />
+              <div class="descriptions">
+                <p class="name text-clamp">{{ item.product.name }}</p>
+                <p class="price">Price: <span>₱{{ item.product.price }}</span></p>
+              </div>
+              <button class="icon-btn-delete2" data-id="{{ item.product.id }}"><i class="bi bi-trash-fill"></i></button>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p>Your cart is empty.</p>
+        {% endif %}
+      </div>
+
+      <a href="{% url 'shop:checkout' %}" class="primary-btn">PROCEED TO CHECKOUT</a>
+    </div>
+
+    <div class="items-section">
+      {% if products.exists %}
+        {% for product in products %}
+          <div class="item" data-id="{{ product.id }}">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="item-img" />
+            <div class="descriptions">
+              <p class="name text-clamp">{{ product.name }}</p>
+              <div class="wrap">
+                <p class="price">₱{{ product.price }}</p>
+                <div class="rating">
+                  <i class="bi bi-star-fill"></i>
+                  <p>{{ product.rating|default:"4.6" }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>No products available.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<form method="post" class="modal item-info">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+    <div class="content">
+      <input type="hidden" name="item-id" id="item-id">
+      <div class="left-section">
+        <div class="item-img"></div>
+        {% if request.user.is_authenticated and request.user.user_type == 'customer' %}
+          <div class="button-cont">
+            <button class="border-btn-primary2 medium-btn add-to-cart" type="button">Add to cart</button>
+            <button class="primary-btn medium-btn" type="submit">Buy now</button>
+          </div>
+        {% endif %}
+      </div>
+      <div class="descriptions">
+        <p class="name"></p>
+        <p class="price"></p>
+        <div class="seller">
+          <p class="label">Seller</p>
+          <a href="{% url 'base:customer_info' %}" class="wrap">
+            <div class="seller-img"></div>
+            <div class="info">
+              <p class="seller-name">{{ product.shop.name }}</p>
+              <div class="cont">
+                <div class="rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span>{{ product.shop.rating|default:"4.8" }}</span>
+                </div>
+                <span class="line-span"></span>
+                <div class="products"><span>{{ product.shop.product_count|default:"10K" }}</span> Products</div>
+                <span class="line-span"></span>
+                <div class="sold"><span>{{ product.shop.items_sold|default:"100" }}</span> Items sold</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        <div class="details-cont">
+          <p class="label">Details</p>
+          <p class="details">{{ product.description|truncatewords:50 }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/customer/item_info.js' %}"></script>
+{% endblock scripts %}

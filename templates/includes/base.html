@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'images/icons/logo.png' %}" />
+  <link rel="stylesheet" href="{% static 'sass/style.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  <link rel="stylesheet" href="{% static 'icons/bootstrap-icons.css' %}" />
+</head>
+
+<body>
+  <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+  {% comment %}
+  <!--- Display messages --->
+  {% endcomment %}
+  <div id="notification-container">
+    {% if messages %} {% for message in messages %}
+    <div class="notification {{ message.tags }}">{{ message }}</div>
+    {% endfor %} {% endif %}
+  </div>
+
+  {% block content %}{% endblock %}
+  <span class="overlay {% if trigger_login_modal %}show-modal global-overlay{% endif %}"></span>
+
+  <script>
+    $(document).ready(function () {
+      // Animate each notification to slide down from the top
+      $(".notification").each(function (index) {
+        $(this)
+          .delay(index * 300)
+          .slideDown(300, function () {
+            // Automatically fade out after 5 seconds
+            setTimeout(() => {
+              $(this).slideUp(300, function () {
+                $(this).remove();
+              });
+            }, 5000);
+          });
+      });
+
+      // Hides overlay when clicked
+      $(".overlay").click(() => $(".overlay").removeClass("show-modal show-modal-transparent global-overlay"));
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+  <script src="{% static 'js/scripts.js' %}"></script>
+</body>
+
+</html>

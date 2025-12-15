@@ -1,0 +1,76 @@
+{% extends '../includes/base.html' %}
+{% block title %}Notifications{% endblock %}
+{% load static %}
+{% block content %}
+{% include "../includes/sidebar.html" %}
+
+<section class="notifications-page seller-content">
+  <div class="page-wrapper">
+    <div class="page-container">
+      <div class="sub-navbar">
+        <div class="title">
+          <p>Notifications</p>
+        </div>
+      </div>
+
+      <form class="link-cont" data-modal="nav-notif">
+        {% csrf_token %}
+        <ul class="wrapper">
+          {% for notif in notifications %}
+          <li>
+            <a href="{% if notif.type == 'order' %}{% url 'shop:admin_orders' %}{% else %}{% url 'shop:seller_products' %}{% endif %}"
+              data-notif-id="{{ notif.id }}" class="notification-link {% if not notif.is_read %}unread{% endif %}">
+              <span class="title">{{ notif.title }}</span>
+              <p>{{ notif.content }}</p>
+              <span class="date">{{ notif.created_at|date:"F d, Y" }}</span>
+            </a>
+          </li>
+
+          <hr class="line-separator">
+          {% empty %}
+          <li class="empty-content">
+            <p>No notifications available.</p>
+          </li>
+          {% endfor %}
+        </ul>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  $(document).on('click', '.notification-link', function (e) {
+    e.preventDefault(); // prevent immediate redirection
+
+    const notifId = $(this).data('notif-id');
+    const redirectUrl = $(this).attr('href');
+
+    if (!notifId || !redirectUrl) return;
+
+    $.ajax({
+      url: "/shop/notification/mark-read/",
+      type: "POST",
+      data: {
+        notif_id: notifId,
+        csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(),
+      },
+      success: function (response) {
+        if (response.success) {
+          // Optional: Update unread count visually here
+          window.location.href = redirectUrl; // redirect after marking as read
+        } else {
+          console.error("Notification read error:", response.error);
+          // fallback redirect anyway
+          window.location.href = redirectUrl;
+        }
+      },
+      error: function () {
+        // fallback redirect in case of server failure
+        window.location.href = redirectUrl;
+      }
+    });
+  });
+</script>
+{% endblock scripts %}

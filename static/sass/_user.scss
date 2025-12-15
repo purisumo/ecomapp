@@ -1,0 +1,103 @@
+.user-page,
+.edit-user-page,
+.user-info-page {
+    padding-bottom: 2rem;
+
+    .wrapper {
+        display: flex;
+        flex-direction: column;
+
+        .action-cont {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+
+            .button-cont {
+                display: flex;
+                gap: 1rem;
+            }
+        }
+
+        .main-cont {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            border-bottom: 1px solid $border-color;
+            padding-bottom: 2rem;
+            margin-bottom: 1.5rem;
+
+            .image-cont {
+                border: 6px solid $primary-color;
+                display: flex;
+                padding: .6rem;
+                height: fit-content;
+                width: fit-content;
+                border-radius: 50%;
+
+                i {
+                    font-size: 18rem;
+                    color: $border-color;
+                    line-height: 0;
+                }
+            }
+
+            .info-cont {
+                display: flex;
+                flex-direction: column;
+                gap: 0.6rem;
+                padding-top: .4rem;
+
+                .name {
+                    font-size: 2rem;
+                    font-weight: 500;
+                }
+
+                p {
+                    display: flex;
+                    flex-direction: column;
+                    font-size: 1.2rem;
+
+                    span {
+                        font-size: 1rem;
+                        color: $unhover-color;
+                    }
+                }
+            }
+        }
+
+        .items-cont {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+
+            .title {
+                font-size: 1.4rem;
+                font-weight: 500;
+                margin-bottom: 1rem;
+            }
+
+            .no-available {
+                padding: 4.5rem;
+                font-weight: 500;
+                font-size: 1.2rem;
+                margin: auto;
+            }
+        }
+    }
+}
+
+.edit-user-page .wrapper .main-cont .info-cont {
+    display: flex;
+    flex-direction: row;
+    gap: 2.5rem;
+
+    .column {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        width: 260px;
+    }
+
+}

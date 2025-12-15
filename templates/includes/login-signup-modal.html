@@ -1,0 +1,122 @@
+{% load static %}
+<form class="modal login-modal {% if trigger_login_modal %}show-modal{% endif %}" method="post" name="login-modal" action="{% url 'shop:login' %}">
+    {% csrf_token %}
+    <div class="modal-container">
+      <p class="label">LOGIN</p>
+
+      <div class="content">
+        <div class="input-cont">
+          <label for="login-username">Username</label>
+          <input type="text" name="username" id="login-username" value="{{ request.POST.username }}">
+        </div>
+
+        <div class="input-cont">
+          <label for="password">Password</label>
+          <input type="password" name="password" id="login-password">
+        </div>
+
+        <a href="#" class="forgot-pass">Forgot your password?</a>
+      </div>
+
+      <div class="actions">
+        <button class="primary-btn medium-btn" type="submit" name="login">Login</button>
+
+        <div class="separator">
+          <p>OR</p>
+          <hr>
+        </div>
+
+        <p class="signup">Don't have an account? <span>Sign up</span></p>
+      </div>
+    </div>
+  </form>
+
+  <form class="modal signup-modal" method="post" name="signup-modal" action="{% url 'shop:signup' %}">
+    {% csrf_token %}
+    <div class="modal-container">
+      <p class="label">SIGN UP</p>
+
+      <div class="content">
+        <div class="content-wrap">
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="f-name">First name <span>*</span></label>
+            <input type="text" name="f-name" id="f-name">
+          </div>
+          
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="m-name">Middle name</label>
+            <input type="text" name="m-name" id="m-name">
+          </div>
+          
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="l-name">Last name <span>*</span></label>
+            <input type="text" name="l-name" id="l-name">
+          </div>
+
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="address">Address <span>*</span></label>
+            <input type="text" name="address" id="address">
+          </div>
+        </div>
+
+        <div class="content-wrap">
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="phone-number">Phone number <span>*</span></label>
+            <input type="text" name="phone-number" id="phone-number">
+          </div>
+          
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="signup-username">Username <span>*</span></label>
+            <input type="text" name="signup-username" id="signup-username">
+          </div>
+
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="signup-email">Email <span>*</span></label>
+            <input type="text" name="signup-email" id="signup-email">
+          </div>
+
+          <div class="input-cont">
+            <label for="account-type">Account type</label>
+            <select name="account-type" id="account-type" class="list-btn">
+              <option value="customer" selected>Customer</option>
+              <option value="seller">Seller</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="content-wrap">
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="signup-password">Password <span>*</span></label>
+            <input type="password" name="signup-password" id="signup-password">
+          </div>
+          
+          <div class="input-cont">
+            <p class="input-error-message"></p>
+            <label for="re-pass">Re-enter password <span>*</span></label>
+            <input type="text" name="re-pass" id="re-pass">
+          </div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary-btn medium-btn" type="submit" name="signup">Sign up</button>
+
+        <div class="separator">
+          <p>OR</p>
+          <hr>
+        </div>
+
+        <p class="login">Already have an account? <span>Login</span></p>
+      </div>
+    </div>
+  </form>
+
+  <script src="{% static 'js/login-signup.js' %}"></script>

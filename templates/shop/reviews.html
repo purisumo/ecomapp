@@ -1,0 +1,25 @@
+{% extends '../includes/base.html' %}
+{% load static %}
+{% block content %}
+{% include "../includes/navbar.html" %}
+<section class="shop-page">
+<div class="signup-container hero">
+    <h2>Your Reviews</h2>
+    {% if error %}
+        <p class="error">{{ error }}</p>
+    {% elif reviews.exists %}
+        <div id="reviews-list">
+            {% for review in reviews %}
+                <div class="review" data-id="{{ review.id }}">
+                    <p>{{ review.product.name }} - Rating: {{ review.rating }}/5 - {{ review.comment }}</p>
+                    <button class="edit-review">Edit</button>
+                    <button class="delete-review">Delete</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have no reviews.</p>
+    {% endif %}
+</div>
+</section>
+{% endblock %}

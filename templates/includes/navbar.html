@@ -1,0 +1,145 @@
+{% load static %}
+
+<div class="nav-cont">
+  <nav>
+    <div class="logo">
+      <img src="{% static 'images/icons/logo.png' %}" alt="logo">
+      <p>DEE <span>TOUCH</span> OF <span>GOLD</span></p>
+    </div>
+
+
+    <ul class="nav-links">
+      <li class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><a
+          href="{% url 'shop:home' %}">Home</a>
+      </li>
+      {% if not user.is_superuser %}
+      <!-- <li class="{% if request.resolver_match.url_name == 'cart' %}active{% endif %}"><i class="bi bi-cart3">
+          {% if cart_item_count > 0 %}
+              <span class="counter">{{ cart_item_count }}</span>
+          {% endif %}
+      </i><a href="#">Cart</a></li> -->
+      {% comment %} </i><a href="#">Cart</a></li> {% endcomment %}
+      {% endif %}
+      <li class="{% if request.resolver_match.url_name == 'orders' %}active{% endif %}"><a href="{% url 'shop:orders'%}">Orders</a></li>
+      <li class="{% if request.resolver_match.url_name == 'products' %}active{% endif %}"><a href="{% url 'shop:products' %}">Products</a></li>
+      <li class="{% if request.resolver_match.url_name == 'wishlist' %}active{% endif %}"><a href="{% url 'shop:wishlist' %}">Wish List</a></li>
+    </ul>
+
+    {% if user.is_authenticated %}
+    <div class="nav-profile-cont">
+      {% if not user.is_superuser %}
+      <div class="buttons-wrapper">
+        <button class="ghost-btn" data-modal="nav-cart">
+          <i class="bi bi-cart3"></i>
+            {% if cart.items.count > 0 %}
+              <span class="counter">{{ cart.items.count }}</span>
+            {% endif %}
+          </button>
+        </button>
+
+        <button class="ghost-btn" data-modal="nav-notif">
+          <i class="bi bi-bell">
+            {% if unread_notif_count > 0 %}
+              <span class="counter">{{ unread_notif_count }}</span>
+            {% endif %}
+          </i>
+          <form class="link-cont" data-modal="nav-notif">
+            {% csrf_token %}
+            <ul class="wrapper">
+              {% for notif in notifications %}
+              <li>
+                <a href="{% if notif.type == 'order' %}{% url 'shop:orders' %}{% else %}{% url 'shop:products' %}{% endif %}"
+                  data-notif-id="{{ notif.id }}" class="notification-link {% if not notif.is_read %}unread{% endif %}">
+                  <span class="title">{{ notif.title }}</span>
+                  <p>{{ notif.content }}</p>
+                  <span class="date">{{ notif.created_at|date:"F d, Y" }}</span>
+                </a>
+              </li>
+              {% empty %}
+              <li>
+                <p>No notifications available.</p>
+              </li>
+              {% endfor %}
+            </ul>
+          </form>
+        </button>
+
+        <a href="{% url 'shop:chat' %}" class="ghost-btn">
+          <i class="bi bi-chat-dots">
+            {% if unread_count > 0 %}
+            <span class="counter"></span>
+            {% endif %}
+          </i>
+        </a>
+      </div>
+      {% endif %}
+
+
+      <div class="profile-wrapper border-btn-primary2" data-modal="nav-profile">
+        <i class="bi bi-person-circle"></i>
+        <p>{{user.username}}</p>
+        <i class="bi bi-chevron-down"></i>
+
+        <div class="link-cont" data-modal="nav-profile">
+          <ul class="wrapper">
+            <li>
+              <!-- <a href="#"><i class="bi bi-person-fill"></i> Profile</a> -->
+              <a href="{% url 'shop:profile' %}"><i class="bi bi-person-fill"></i> Profile</a>
+            </li>
+            <li>
+              <a href="{% url 'shop:logout'%}"><i class="bi bi-door-open"></i> Logout</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <button class="border-btn-primary" data-modal="nav-login-btn">Login</button>
+    {% endif %}
+  </nav>
+</div>
+
+{% if not user.is_authenticated %}
+{% include "../includes/login-signup-modal.html" %}
+{% endif %}
+
+<div class="nav-cart-cont">
+  <div class="nav-cart">
+    <button class="close-modal-btn"><i class="bi bi-x"></i></button>
+
+    <p class="nav-cart-title">Cart</p>
+
+    <div class="cart-items">
+      {% if cart.items.exists %}
+          {% for item in cart.items.all %}
+          <div class="item" data-id="{{ item.product.id }}">
+            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-img" />
+            <div class="descriptions">
+              <p class="name text-clamp">{{ item.product.name }}</p>
+              <p class="price">Price: <span><span class="currency">₱</span>{{ item.product.price }}</span></p>
+            </div>
+            <button class="icon-btn-delete2 delete-cart-item" data-id="{{ item.id }}""><i class="bi bi-trash-fill"></i></button>
+          </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-content" style="font-size: 16px">
+        <p>Cart is empty.</p>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="bottom-cont">
+      {% if cart.items.exists %}
+      <div class="total-cont">
+        <p>Total items: <span>{{ cart.items.count }}</span></p>
+        <p>Subtotal: <span><span class="currency">₱</span>{{ cart_subtotal }}</span></p>
+      </div>
+      {% endif %}
+
+      <a href="{% url 'shop:checkout' %}" class="primary-btn">PROCEED TO CHECKOUT</a>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/customer/cart.js' %}"></script>
+
+<script src="{% static 'js/customer/navbar.js' %}"></script>

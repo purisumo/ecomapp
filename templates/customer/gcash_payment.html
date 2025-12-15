@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GCash Payment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #007dff 0%, #0066cc 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            max-width: 400px;
+            width: 100%;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #007dff, #0066cc);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+
+        .back-btn {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .gcash-logo {
+            width: 80px;
+            height: 25px;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            color: #007dff;
+            font-size: 14px;
+        }
+
+        .merchant-info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .merchant-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .reference {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .amount-section {
+            padding: 30px;
+            text-align: center;
+            background: #f8fbff;
+        }
+
+        .amount-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .amount {
+            font-size: 32px;
+            font-weight: bold;
+            color: #007dff;
+            margin-bottom: 20px;
+        }
+
+        .payment-form {
+            padding: 0 30px 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007dff;
+            box-shadow: 0 0 0 3px rgba(0, 125, 255, 0.1);
+        }
+
+        .mpin-input {
+            text-align: center;
+            letter-spacing: 8px;
+            font-weight: bold;
+        }
+
+        .pay-button {
+            width: 100%;
+            background: linear-gradient(135deg, #007dff, #0066cc);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 125, 255, 0.3);
+        }
+
+        .pay-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .security-note {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0f7ff;
+            border-radius: 8px;
+        }
+
+        .error-message {
+            color: #ff4757;
+            font-size: 14px;
+            margin-top: 10px;
+            padding: 10px;
+            background: #fff5f5;
+            border-radius: 8px;
+            border-left: 4px solid #ff4757;
+            display: none;
+        }
+
+        .success-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 125, 255, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .success-content {
+            text-align: center;
+            color: white;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: white;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: checkmarkPop 0.5s ease-out;
+        }
+
+        @keyframes checkmarkPop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .checkmark::after {
+            content: '✓';
+            font-size: 40px;
+            color: #28a745;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="payment-container">
+        <div class="header">
+            <button class="back-btn" onclick="goBack()">←</button>
+            <div class="gcash-logo">GCash</div>
+            <h2>Pay with GCash</h2>
+            <div class="merchant-info">
+                <div class="merchant-name">{{ merchant_name }}</div>
+                <div class="reference">Ref: {{ reference_number }}</div>
+            </div>
+        </div>
+
+        <div class="amount-section">
+            <div class="amount-label">Amount to Pay</div>
+            <div class="amount">₱{{ amount|floatformat:2 }}</div>
+        </div>
+
+        <form class="payment-form" id="payment-form">
+            {% csrf_token %}
+            <input type="hidden" name="session_id" value="{{ session_id }}">
+            
+            <div class="form-group">
+                <label class="form-label" for="mobile_number">Mobile Number</label>
+                <input 
+                    type="tel" 
+                    id="mobile_number" 
+                    name="mobile_number" 
+                    class="form-input" 
+                    placeholder="09XXXXXXXXX"
+                    maxlength="11"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="mpin">MPIN</label>
+                <input 
+                    type="password" 
+                    id="mpin" 
+                    name="mpin" 
+                    class="form-input mpin-input" 
+                    placeholder="••••"
+                    maxlength="4"
+                    required
+                >
+            </div>
+
+            <div class="error-message" id="error-message"></div>
+
+            <button type="submit" class="pay-button" id="pay-button">
+                <span class="loading-spinner" id="loading-spinner"></span>
+                <span id="button-text">Pay Now</span>
+            </button>
+
+            <div class="security-note">
+                <br>Use any 11-digit number and 4-digit MPIN to proceed.
+            </div>
+        </form>
+    </div>
+
+    <div class="success-animation" id="success-animation">
+        <div class="success-content">
+            <div class="checkmark"></div>
+            <h2>Payment Successful!</h2>
+            <p>Redirecting to confirmation page...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('payment-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitButton = document.getElementById('pay-button');
+            const buttonText = document.getElementById('button-text');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const errorMessage = document.getElementById('error-message');
+            
+            // Get form values for validation
+            const mobileNumber = document.getElementById('mobile_number')?.value?.trim();
+            const mpin = document.getElementById('mpin')?.value?.trim();
+            
+            // Client-side validation
+            if (!mobileNumber || mobileNumber.length < 11) {
+                showError('Please enter a valid mobile number (11+ digits)');
+                return;
+            }
+            
+            if (!mpin || mpin.length !== 4) {
+                showError('Please enter a valid 4-digit MPIN');
+                return;
+            }
+            
+            // Update UI
+            submitButton.disabled = true;
+            loadingSpinner.style.display = 'inline-block';
+            buttonText.textContent = 'Processing...';
+            errorMessage.style.display = 'none';
+            
+            const formData = new FormData(this);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+            
+            if (!csrfToken) {
+                showError('CSRF token missing. Please refresh the page.');
+                return;
+            }
+            
+            // Log the data being sent for debugging
+            console.log('Sending payment data:', {
+                session_id: formData.get('session_id'),
+                mobile_number: formData.get('mobile_number'),
+                mpin: formData.get('mpin') ? '****' : 'missing'
+            });
+            
+            try {
+                const response = await fetch('/shop/payment/gcash/process/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+                
+                // Check if response is JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const htmlText = await response.text();
+                    console.error('Received HTML instead of JSON:', htmlText.substring(0, 500) + '...');
+                    
+                    // Check if it's a redirect to products page (session expired)
+                    if (htmlText.includes('Invalid payment session') || htmlText.includes('Products')) {
+                        throw new Error('Payment session expired. Please start checkout again.');
+                    }
+                    
+                    throw new Error('Server error. Please try again or contact support.');
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (data.success) {
+                    // Show success animation
+                    const successAnimation = document.getElementById('success-animation');
+                    if (successAnimation) {
+                        successAnimation.style.display = 'flex';
+                    }
+                    
+                    // Redirect after delay
+                    setTimeout(() => {
+                        window.location.href = data.redirect_url;
+                    }, 2000);
+                } else {
+                    showError(data.message || 'Payment failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                showError(error.message || 'Network error. Please try again.');
+            }
+            
+            function showError(message) {
+                errorMessage.textContent = message;
+                errorMessage.style.display = 'block';
+                submitButton.disabled = false;
+                loadingSpinner.style.display = 'none';
+                buttonText.textContent = 'Pay Now';
+            }
+        });
+    </script>
+</body>
+</html>

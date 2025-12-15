@@ -1,0 +1,139 @@
+{% extends '../includes/base.html' %}
+{% block title %}Wish List{% endblock %}
+{% load static %}
+{% block content %}
+
+{% include "../includes/navbar.html" %}
+
+<section class="wish-list-page ">
+  <div class="page-wrapper">
+    <div class="page-container">
+      <div class="sub-navbar">
+        <div class="title">
+          <p>Wish list</p>
+        </div>
+      </div>
+
+      <div class="items-section {% if not wishlist_products_content %}empty-listing{% endif %}">
+        {% for product in wishlist_products_content %}
+        <div class="item" 
+              data-id="{{ product.id }}"
+              data-name="{{ product.name|escapejs }}"
+              data-price="{{ product.price }}"
+              data-description="{{ product.description|escapejs }}"
+              data-image="{{ product.image.url|default:'/static/images/placeholder.jpg'|escapejs }}"
+              data-seller-name="{{ product.shop.name }}"
+              data-seller-rating="{{ product.shop.seller.rating|default:0 }}"
+              data-seller-products="{{ product.shop.products.count }}"
+              data-seller-followers="{{ product.shop.followers.count }}"
+              data-products-sold="{{ product.shop.products_sold|default:0 }}"
+              data-shop-id="{{ product.shop.id }}"
+              data-rating="{{ product.rating|default:'4.6' }}"
+              data-category-id="{{ product.category.id|default:0 }}"
+              data-material="{{ product.material }}"
+              data-type="{{ product.type }}"
+              data-is-in-cart="{{ product.is_in_cart }}"
+              data-is-available="{{ product.is_available }}">
+
+              <div style="position:relative;">
+                <img src="{{ product.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ product.name|escapejs }}" class="item-img" />
+                {% if not product.is_available %}<span class="item-not-available">Item not available</span>{% endif %}
+              </div>
+            <div class="descriptions">
+                <p class="name text-clamp">{{ product.name }}</p>
+                <div class="wrap">
+                    <p class="price">₱{{ product.price }}</p>
+                    {% comment %} <div class="rating">
+                        <i class="bi bi-star-fill"></i>
+                        <p>{{ product.rating|default:"4.6" }}</p>
+                    </div> {% endcomment %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-content">
+          <p>You do not have Wish list items yet.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<form method="post" class="modal item-info" id="item-info-modal">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+    
+    <div class="content">
+      <input type="hidden" name="item-id" id="item-id">
+
+      <div class="left-section">
+          <div class="item-img" style="object-fit: scale-down;">
+            <img src="{{ item.product.image.url|default:'/static/images/placeholder.jpg' }}" alt="{{ item.product.name }}" class="item-img" />
+          </div>
+          {% if request.user.is_authenticated and request.user.user_type == 'customer' %}
+            <div class="button-cont">
+              <button class="border-btn-primary2 medium-btn wishlist-btn" type="button" data-in-wishlist="false">Add to Wishlist</button>
+              <button class="primary-btn medium-btn add-to-cart" type="button">Add to Cart</button>
+                <!-- <button class="primary-btn medium-btn buy-now" type="button">Buy Now</button> -->
+            </div>
+          {% endif %}
+      </div>
+
+      <div class="descriptions">
+        <p class="name"></p>
+        <p class="price"><span class="currency">₱</span></p>
+        
+        <div class="seller">
+          <p class="label">Seller</p>
+          <a href="#" class="wrap"> 
+            <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+
+            <div class="info">
+              <p class="seller-name"></p>
+              
+              <div class="cont">
+                <div class="rating">
+                  <i class="bi bi-star-fill"></i>
+                  <span></span>
+                </div>
+
+                <span class="line-span"></span>
+                <div class="products"><span></span> Products</div>
+                <span class="line-span"></span>
+                <div class="followers"><span></span> Followers</div>
+                <span class="line-span"></span>
+                <div class="products-sold"><span></span> Products sold</div>
+              </div>
+            </div>
+          </a>
+        </div>
+        
+        <div class="details-cont">
+          <div class="category-material-wrap" style="display:flex; gap:5rem; margin-bottom:.2rem;">
+            <div class="material-cont">
+              <p class="label">Material: </p>
+              <p class="material"></p>
+            </div>
+            <div class="category-cont">
+              <p class="label">Type: </p>
+              <p class="type"></p>
+            </div>
+          </div>
+
+          <p class="label">Details</p>
+          <p class="details"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- Serialize wishlist_products as JSON -->
+{{ wishlist_products|json_script:"wishlist-products" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/customer/item_info.js' %}"></script>
+{% endblock scripts %}
