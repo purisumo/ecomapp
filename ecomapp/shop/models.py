@@ -62,7 +62,7 @@ class Product(models.Model):
     TYPE_CHOICES = [
         ('necklace', 'Necklace'),
         ('bangle', 'Bangle'),
-        ('earings', 'Earings'),
+        ('earrings', 'Earrings'),
         ('ring', 'Ring'),
     ]
 
@@ -115,6 +115,7 @@ class Order(models.Model):
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE, related_name='orders')
     order_number = models.CharField(max_length=6, unique=True, editable=False)
     delivery_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    tax = models.DecimalField(max_digits=10, decimal_places=2)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='pending')
     estimated_time_arrival = models.CharField(max_length=50,blank=True, null=True)

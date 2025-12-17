@@ -1,4 +1,5 @@
 import string
+from django.conf import settings
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
@@ -22,6 +23,9 @@ from datetime import datetime, time, timedelta, date
 from django.db.models import Avg
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Prefetch
+from collections import defaultdict
+from decimal import Decimal
+from django.db import transaction
 
 def home(request):
     trigger_login_modal = request.GET.get('login_required') == 'true'
@@ -819,6 +823,18 @@ def seller_dashboard_view(request):
         if first_item and first_item.product:
             product_type = first_item.product.type
 
+        customer_pic = ""
+        if order.customer.profile_picture and order.customer.profile_picture.name:
+            customer_pic = settings.MEDIA_URL + order.customer.profile_picture.name.lstrip('/')
+
+        # Or if .name is unreliable, fallback to string extraction (works with your current output)
+        else:
+            field_str = str(order.customer.profile_picture)
+            if 'None' not in field_str and ':' in field_str:
+                path = field_str.split(':', 1)[1].strip().rstrip('>')
+                if path:
+                    customer_pic = settings.MEDIA_URL + path.lstrip('/')
+
         orders_data.append({
             'id': order.id,
             'order_number': order.order_number,
@@ -826,7 +842,9 @@ def seller_dashboard_view(request):
             'status': order.status,
             'total_amount': float(order.total_amount),
             'delivery_fee': float(order.delivery_fee),
+            'tax': float(order.tax),
             'estimated_time_arrival': order.estimated_time_arrival or "",
+            'customer_pic': customer_pic,
             'customer_name': order.customer.get_full_name(),
             'customer_id': order.customer.id,
             'product_name': first_item.product.name if first_item and first_item.product else "Unknown",
@@ -834,6 +852,8 @@ def seller_dashboard_view(request):
             'unit_price': float(first_item.unit_price) if first_item else 0.0,
             'product_type': product_type,
         })
+
+        print('orders_data', orders_data, order.customer.profile_picture)
 
     # Current year
     today = date.today()
@@ -1218,31 +1238,20 @@ def delete_category_view(request, category_id):
 def profile(request):
     user = request.user
 
-    if not user.is_authenticated:
-        messages.error(request, "You must be logged in to view your profile.")
-        return redirect('shop:home')
-
     if request.method == 'POST':
-        # === Save Info ===
-        if 'save-infos' in request.POST:
-            f_name = request.POST.get('f-name')
-            m_name = request.POST.get('m-name')
-            l_name = request.POST.get('l-name')
-            address = request.POST.get('address')
-            phone_number = request.POST.get('phone-number')
+        # === Profile Picture Upload (always check if file was uploaded) ===
+        if 'profile' in request.FILES:
+            user.profile_picture = request.FILES['profile']
 
-            user.first_name = f_name
-            user.middle_name = m_name
-            user.last_name = l_name
-            user.phone_number = phone_number
-            user.address = address
-            user.save()
+        # === Update Basic Profile Info ===
+        user.first_name = request.POST.get('f-name', '').strip()
+        user.middle_name = request.POST.get('m-name', '').strip()
+        user.last_name = request.POST.get('l-name', '').strip()
+        user.address = request.POST.get('address', '').strip()
+        user.phone_number = request.POST.get('phone-number', '').strip()
 
-            messages.success(request, "Profile updated successfully.")
-            return redirect('shop:profile')
-
-        # === Change Password ===
-        elif 'change-password' in request.POST:
+        # === Change Password (only if triggered from password modal) ===
+        if 'change-password' in request.POST:
             old_password = request.POST.get('old-password')
             new_password = request.POST.get('password')
             confirm_password = request.POST.get('re-pass')
@@ -1255,11 +1264,19 @@ def profile(request):
                 messages.error(request, "Password must be at least 8 characters long.")
             else:
                 user.set_password(new_password)
-                user.save()
-                update_session_auth_hash(request, user)  # Keeps the user logged in
-                messages.success(request, "Password changed successfully.")
-                return redirect('shop:profile')
+                update_session_auth_hash(request, user)  # Keeps user logged in
+                messages.success(request, "Password changed successfully!")
 
+        # === Save everything (info + picture + password if changed) ===
+        user.save()
+
+        # Success message (covers both save-info and password change)
+        if 'change-password' not in request.POST:
+            messages.success(request, "Profile updated successfully!")
+
+        return redirect('shop:profile')
+
+    # GET request - just show the profile page
     return render(request, 'profile.html', {'user': user})
 
 
@@ -1279,49 +1296,55 @@ def generate_reference_number():
 def checkout(request):
     try:
         cart = request.user.cart
-    except:
+    except AttributeError:
         messages.error(request, "You do not have a cart.")
         return redirect('shop:products')
 
-    items = cart.items.all()
+    items = cart.items.select_related('product__shop').all()
     if not items.exists():
         messages.error(request, "Your cart is empty.")
         return redirect('shop:products')
-    
-    total_items = sum(item.quantity for item in items)
-    subtotal = sum(item.product.price * item.quantity for item in items)
-    delivery_fee_per_item = 200
-    total_delivery_fee = sum(item.quantity * delivery_fee_per_item for item in items)
-    total = subtotal + total_delivery_fee
 
-    # ETA range: today + 6 to 8 days
+    # Group items by shop to determine unique sellers
+    items_by_shop = defaultdict(list)
+    for item in items:
+        items_by_shop[item.product.shop].append(item)
+
+    unique_sellers = len(items_by_shop)
+    delivery_fee_per_seller = Decimal('159.00')
+    total_delivery_fee = unique_sellers * delivery_fee_per_seller
+
+    # Calculate subtotal
+    subtotal = sum(Decimal(str(item.product.price)) * item.quantity for item in items)
+
+    # 5% tax on subtotal
+    tax = (subtotal * Decimal('0.05')).quantize(Decimal('0.01'))
+
+    # Final total
+    total = subtotal + total_delivery_fee + tax
+
+    # Total quantity of items
+    total_items = sum(item.quantity for item in items)
+
+    # Estimated arrival (6-8 days from today)
     today = datetime.today()
     eta_start = today + timedelta(days=6)
     eta_end = today + timedelta(days=8)
     eta_range = f"{eta_start.strftime('%B %d')} - {eta_end.strftime('%d, %Y')}"
 
     if request.method == 'POST':
-        if not cart or not cart.items.exists():
-            messages.error(request, "Your cart is empty.")
-            return redirect('shop:products')
+        mop = request.POST.get('mop', 'cod').lower()
 
-        mop = request.POST.get('mop', 'COD')
-        
         if mop == 'gcash':
-            # Create payment session for GCash
             reference_number = generate_reference_number()
-            
-            # Store cart data in session for later
-            cart_data = []
-            for cart_item in items:
-                cart_data.append({
-                    'product_id': cart_item.product.id,
-                    'quantity': cart_item.quantity,
-                    'price': float(cart_item.product.price),
-                    'shop_id': cart_item.product.shop.id,
-                })
-            
-            # Create payment record
+
+            cart_data = [{
+                'product_id': ci.product.id,
+                'quantity': ci.quantity,
+                'price': float(ci.product.price),
+                'shop_id': ci.product.shop.id,
+            } for ci in items]
+
             payment = Payment.objects.create(
                 customer=request.user,
                 reference_number=reference_number,
@@ -1330,61 +1353,64 @@ def checkout(request):
                 status='pending',
                 session_data={
                     'cart_data': cart_data,
-                    'delivery_fee_per_item': delivery_fee_per_item,
+                    'unique_sellers': unique_sellers,
+                    'delivery_fee_per_seller': float(delivery_fee_per_seller),
+                    'tax': float(tax),
                     'eta_range': eta_range,
                 }
             )
-            
-            # Create PayMongo source (checkout URL)
+
             paymongo = PayMongoAPI()
-            amount_in_cents = int(total * 100)  # Convert to cents
-            
-            # Build redirect URLs
+            amount_in_cents = int(total * 100)
+
             success_url = request.build_absolute_uri(
                 reverse('shop:gcash_callback') + f'?payment_id={payment.id}'
             )
             failed_url = request.build_absolute_uri(
                 reverse('shop:gcash_failed') + f'?payment_id={payment.id}'
             )
-            
+
             result = paymongo.create_source(
                 amount=amount_in_cents,
                 description=f"Order payment - {reference_number}",
                 redirect_success=success_url,
                 redirect_failed=failed_url
             )
-            
+
             if result['success']:
                 source_data = result['data']['data']
                 payment.source_id = source_data['id']
                 payment.checkout_url = source_data['attributes']['redirect']['checkout_url']
                 payment.save()
-                
+
                 return JsonResponse({
                     'success': True,
                     'checkout_url': payment.checkout_url,
-                    'payment_id': str(payment.id),
-                    'reference_number': reference_number,
-                    'amount': float(total),
                 })
             else:
                 payment.status = 'failed'
                 payment.save()
                 return JsonResponse({
                     'success': False,
-                    'message': 'Failed to create payment session. Please try again.'
+                    'message': 'Failed to create payment session.'
                 }, status=400)
-        
-        elif mop == 'COD':
-            # Process COD order immediately
-            return process_cod_order(request, items, delivery_fee_per_item, eta_range)
+
+        elif mop == 'cod':
+            return process_cod_order(
+                request=request,
+                items=items,
+                delivery_fee_per_seller=delivery_fee_per_seller,
+                eta_range=eta_range
+            )
 
     return render(request, 'customer/checkout.html', {
         'cart': cart,
         'total_items': total_items,
         'subtotal': subtotal,
-        'delivery_fee_per_item': delivery_fee_per_item,
+        'unique_sellers': unique_sellers,
+        'delivery_fee_per_seller': delivery_fee_per_seller,
         'total_delivery_fee': total_delivery_fee,
+        'tax': tax,
         'total': total,
         'eta_range': eta_range,
     })
@@ -1555,67 +1581,78 @@ def process_order_from_payment(payment):
         type='order'
     )
 
-def process_cod_order(request, items, delivery_fee_per_item, eta_range):
-    """Process Cash on Delivery order"""
+def process_cod_order(request, items, delivery_fee_per_seller, eta_range=None):
+    """Process Cash on Delivery order - one Order per seller"""
     cart = request.user.cart
-    
+    eta_range = eta_range or "Within 6-8 days"
+    tax_rate = Decimal('0.05')
+
+    # Group items by shop
+    items_by_shop = defaultdict(list)
     for cart_item in items:
-        for _ in range(cart_item.quantity):
-            order_number = generate_unique_order_number()
+        items_by_shop[cart_item.product.shop].append(cart_item)
 
-            Order.objects.create(
+    with transaction.atomic():
+        for shop, shop_items in items_by_shop.items():
+            subtotal = sum(Decimal(str(ci.product.price)) * ci.quantity for ci in shop_items)
+            tax = (subtotal * tax_rate).quantize(Decimal('0.01'))
+            total_amount = subtotal + Decimal(str(delivery_fee_per_seller)) + tax
+
+            order = Order.objects.create(
                 customer=request.user,
-                shop=cart_item.product.shop,
-                order_number=order_number,
-                delivery_fee=delivery_fee_per_item,
-                total_amount=cart_item.product.price + delivery_fee_per_item,
+                shop=shop,
+                order_number=generate_unique_order_number(),
+                delivery_fee=delivery_fee_per_seller,
+                tax=tax,
+                total_amount=total_amount,
                 estimated_time_arrival=eta_range,
-                mode_of_payment='COD'
+                mode_of_payment='cod',
+                status='pending'
             )
 
-            OrderItem.objects.create(
-                order=Order.objects.latest('id'),
-                product=cart_item.product,
-                quantity=1,
-                unit_price=cart_item.product.price,
-                subtotal=cart_item.product.price
-            )
-
-            cart_item.product.is_available = False
-            cart_item.product.save()
-
-            # Remove from other carts
-            other_carts = CartItem.objects.filter(
-                product=cart_item.product
-            ).exclude(cart__customer=request.user)
-            
-            for other_item in other_carts:
-                if other_item.cart and other_item.cart.customer:
-                    Notification.objects.create(
-                        user=other_item.cart.customer,
-                        title="Item removed",
-                        content=f"'{cart_item.product.name}' has been ordered by another customer and removed from your cart.",
-                        type='product'
+            for cart_item in shop_items:
+                for _ in range(cart_item.quantity):
+                    OrderItem.objects.create(
+                        order=order,
+                        product=cart_item.product,
+                        quantity=1,
+                        unit_price=cart_item.product.price,
+                        subtotal=cart_item.product.price
                     )
-                other_item.delete()
+
+                cart_item.product.is_available = False
+                cart_item.product.save()
+
+                # Remove from other carts
+                other_cart_items = CartItem.objects.filter(product=cart_item.product).exclude(cart=cart)
+                for other_item in other_cart_items:
+                    if other_item.cart and other_item.cart.customer:
+                        Notification.objects.create(
+                            user=other_item.cart.customer,
+                            title="Item no longer available",
+                            content=f"'{cart_item.product.name}' was purchased by another customer.",
+                            type='product'
+                        )
+                    other_item.delete()
 
             # Notify seller
             Notification.objects.create(
-                user=cart_item.product.shop.seller,
-                title="New order",
-                content=f"You have a new order for '{cart_item.product.name}'!",
+                user=shop.seller,
+                title="New COD Order",
+                content=f"New order #{order.order_number} worth ₱{total_amount}",
                 type='order'
             )
 
-            # Notify buyer
-            Notification.objects.create(
-                user=request.user,
-                title="Order placed",
-                content=f"Your order for '{cart_item.product.name}' has been placed successfully.",
-                type='order'
-            )
+        # Notify buyer once
+        Notification.objects.create(
+            user=request.user,
+            title="Order Placed",
+            content=f"Your COD order(s) placed. Estimated arrival: {eta_range}.",
+            type='order'
+        )
 
     cart.items.all().delete()
+    messages.success(request, "Order placed successfully!")
     return redirect('shop:checkout_success')
 
 @login_required
