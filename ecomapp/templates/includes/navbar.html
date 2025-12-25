@@ -75,7 +75,13 @@
 
 
       <div class="profile-wrapper border-btn-primary2" data-modal="nav-profile">
-        <i class="bi bi-person-circle"></i>
+        {% if user.profile_picture %}
+        <div class="profile-img small">
+          <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+        </div>
+        {% else %}
+            <i class="bi bi-person-circle"></i>
+        {% endif %}
         <p>{{user.username}}</p>
         <i class="bi bi-chevron-down"></i>
 
@@ -111,7 +117,7 @@
     <div class="cart-items">
       {% if cart.items.exists %}
           {% for item in cart.items.all %}
-          <div class="item" data-id="{{ item.product.id }}">
+          <div class="cart-item" data-id="{{ item.product.id }}">
             <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-img" />
             <div class="descriptions">
               <p class="name text-clamp">{{ item.product.name }}</p>

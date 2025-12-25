@@ -307,7 +307,7 @@
       gap: 0.2rem;
       padding: 0 .5rem;
 
-      .item {
+      .cart-item {
         display: flex;
         gap: 0.4rem;
         padding: .4rem;
@@ -430,7 +430,8 @@
         cursor: pointer;
         transition: 0.3s;
         display: flex;
-        gap: 1rem;
+        align-items: center;
+        justify-content: space-between;
         width: 100%;
         color: $text-color2;
 

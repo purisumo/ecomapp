@@ -26,7 +26,21 @@
 
       <div class="content-section">
         <div class="profile-image-cont">
-          <div class="profile-img"><i class="bi bi-person-circle"></i></div>
+          <div class="profile-img">
+              {% if user.profile_picture %}
+                  <img src="{{ user.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+              {% else %}
+                  <i class="bi bi-person-circle"></i>
+              {% endif %}
+          </div>
+
+          <div class="change-profile-cont">
+            <p>Change profile picture</p>
+            <label class="custom-file-upload">
+                <input type="file" name="profile" accept="image/*">
+                Choose Image
+            </label>
+          </div>
         </div>
 
         <div class="profile-info-wrap">

@@ -60,6 +60,40 @@ $(document).ready(function () {
     modal.find('input#selected-id').val(''); // Reset value
   }
 
+  const gcashModal = $("#gcash-receipt-modal");
+  const fileInput = gcashModal.find('input[type="file"]');
+  const previewArea = gcashModal.find('.preview-area');
+  const previewImg = $("#receipt-preview");
+
+  // Open modal when clicking upload button
+  $(document).on('click', '.gcash-upload-btn', function() {
+    const orderId = $(this).data('id');
+    gcashModal.find('#gcash-order-id').val(orderId);
+    
+    // Reset modal
+    fileInput.val('');
+    previewArea.hide();
+    previewImg.attr('src', '');
+    
+    gcashModal.addClass('show-modal');
+    $(".overlay").addClass('show-modal');
+  });
+
+  // File preview
+  fileInput.on('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        previewImg.attr('src', ev.target.result);
+        previewArea.show();
+      };
+      reader.readAsDataURL(file);
+    } else {
+      previewArea.hide();
+    }
+  });
+
   $(".overlay").click(() => closeModal());
   $("#update-order-status-modal .close").click(() => closeModal());
   $("#update-order-status-modal .button-cont-below button.border-btn-primary2").click(() => closeModal());

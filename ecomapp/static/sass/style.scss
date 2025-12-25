@@ -337,6 +337,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
+  padding-bottom: 2rem;
 
   .computations {
     display: flex;
@@ -823,5 +824,79 @@ body {
         color: $text-color4;
       }
     }
+  }
+}
+
+.profile-img {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid $primary-color;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f0;
+
+    &.small{
+      width: 44px;
+      height: 44px;
+      border: 1px solid $primary-color;
+    }
+
+    &.semi-medium{
+      width: 60px;
+      height: 60px;
+      border: 1px solid $primary-color;
+
+      i{
+        font-size: 3.6rem;
+      }
+    }
+
+    &.medium{
+      width: 84px;
+      height: 84px;
+      border: 2px solid $primary-color;
+
+      i{
+        font-size: 5.2rem;
+      }
+    }
+}
+
+img.profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+img.profile-avatar.small {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-img i {
+  font-size: 14rem;
+    color: #ccc;
+}
+
+.custom-file-upload {
+  display: inline-block;
+  padding: 8px 16px;
+  background: $primary-color;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+
+  &.gcash{
+    margin: .5rem auto;
+  }
+
+  input[type="file"] {
+      display: none;
   }
 }

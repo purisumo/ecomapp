@@ -2,10 +2,8 @@ $(document).ready(function () {
   const $allBtns = $('.computations .container-box');
   const $weeklySelect = $('#weekly-select');
   const $monthlySelect = $('#monthly-select');
-
   const $invoiceSection = $('#invoice-section');
   const $itemsSection = $('#items-section');
-
   const $sectionTitle = $('#section-title');
   const $statsDetails = $('#stats-details');
   const $ordersList = $('#orders-list');
@@ -14,11 +12,8 @@ $(document).ready(function () {
   const allOrders = JSON.parse(document.getElementById('all-orders-data')?.textContent || '[]');
   const currentYear = new Date().getFullYear();
 
-  // Initial hide dropdowns
   $weeklySelect.hide();
   $monthlySelect.hide();
-
-  // Initial: show invoice, hide items
   $invoiceSection.addClass('show-section');
   $itemsSection.removeClass('show-section');
 
@@ -45,7 +40,6 @@ $(document).ready(function () {
 
   function renderInvoice(type, options = {}) {
     const { start, end, name } = getDateRange(type, options);
-
     $sectionTitle.text(`${name}'s Invoice`);
 
     const filteredOrders = allOrders.filter(order => {
@@ -53,8 +47,7 @@ $(document).ready(function () {
       return orderDate >= start && orderDate < end;
     });
 
-    // Items Ordered by type
-    const typeSales = { necklace: 0, bangle: 0, earings: 0, ring: 0 };
+    const typeSales = { necklace: 0, bangle: 0, earrings: 0, ring: 0 };
     filteredOrders.forEach(order => {
       if (order.product_type) {
         const t = order.product_type.toLowerCase().trim();
@@ -62,7 +55,7 @@ $(document).ready(function () {
       }
     });
 
-    const itemsHtml = ['necklace', 'bangle', 'earings', 'ring']
+    const itemsHtml = ['necklace', 'bangle', 'earrings', 'ring']
       .map(t => `<p class="info">${t.charAt(0).toUpperCase() + t.slice(1)}: ${typeSales[t]}</p>`)
       .join('');
 
@@ -100,19 +93,30 @@ $(document).ready(function () {
         </div>
       `);
     } else {
-      const ordersHtml = filteredOrders.map(order => `
+      const ordersHtml = filteredOrders.map(order => {
+        const customerPic = order.customer_pic || '';
+        const normalizedPic = customerPic && !customerPic.startsWith('http') && !customerPic.startsWith('/media/')
+          ? '/media/' + customerPic.replace(/^\/+/, '')
+          : customerPic;
+
+        return `
         <div class="order-item">
           <div class="image-container" style="height:fit-content; margin:auto 0;">
             ${order.product_image
-          ? `<img src="${order.product_image}" width="150" height="150" alt="${order.product_name}">`
-          : `<div style="width:150px;height:150px;background:#eee;display:flex;align-items:center;justify-content:center;">No Image</div>`
-        }
+              ? `<img src="${order.product_image}" width="150" height="150" alt="${order.product_name}">`
+              : `<div style="width:150px;height:150px;background:#eee;display:flex;align-items:center;justify-content:center;">No Image</div>`
+            }
           </div>
 
           <div class="item-info">
             <p class="item-name">${order.product_name}</p>
             <a href="/shop/info/${order.customer_id}/" class="seller">
-              <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+              <div class="profile-img semi-medium">
+                ${normalizedPic
+                  ? `<img src="${normalizedPic}" alt="Customer Profile" class="profile-avatar">`
+                  : `<i class="bi bi-person-circle"></i>`
+                }
+              </div>
               <div>
                 <p class="seller-name">${order.customer_name || 'Customer'}</p>
                 <p class="user-role">Customer</p>
@@ -134,12 +138,14 @@ $(document).ready(function () {
             <div class="computation-cont">
               <div class="label-with-value"><p class="label">Price:</p> <p class="price"><span class="currency">₱</span>${order.unit_price.toFixed(2)}</p></div>
               <div class="label-with-value"><p class="label">Delivery fee:</p> <p class="price"><span class="currency">₱</span>${order.delivery_fee.toFixed(2)}</p></div>
+              <div class="label-with-value"><p class="label">Tax:</p> <p class="price"><span class="currency">₱</span>${order.tax.toFixed(2)}</p></div>
               <div class="label-with-value total"><p class="label">Total:</p> <p class="price"><span class="currency">₱</span>${order.total_amount.toFixed(2)}</p></div>
             </div>
           </div>
         </div>
         <hr class="line-separator">
-      `).join('');
+      `;
+      }).join('');
 
       $ordersList.html(ordersHtml);
     }
@@ -202,6 +208,5 @@ $(document).ready(function () {
     renderInvoice('monthly', { month: parseInt($(this).val()) });
   });
 
-  // Initial load
   renderInvoice('today');
 });

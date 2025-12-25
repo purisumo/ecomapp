@@ -578,6 +578,21 @@ $(document).ready(function () {
     const rating = item.data("rating");
     const isInCart = item.data('is-in-cart') === 'True' ? true : false;
     const isAvailable = item.data('is-available') === 'True' ? true : false;
+    const sellerProfilePic = item.data('seller-profile-pic');
+
+    const $sellerImgContainer = $("#item-info-modal .profile-img");
+    const $sellerImg = $sellerImgContainer.find('.profile-avatar');
+    const $icon = $sellerImgContainer.find('i');
+
+    if (sellerProfilePic && sellerProfilePic !== 'icon') {
+      // Has real profile picture
+      $sellerImg.attr('src', sellerProfilePic.startsWith('profiles/') ? `/media/${sellerProfilePic}` : sellerProfilePic).show();
+      $icon.hide();
+    } else {
+      // No profile picture → show icon
+      $sellerImg.hide();
+      $icon.show();
+    }
 
     $("#item-id").val(productId);
     $("#item-info-modal .name").text(name || "Unknown Product");

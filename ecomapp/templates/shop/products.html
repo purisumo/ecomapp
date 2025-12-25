@@ -56,6 +56,7 @@
               data-price="{{ product.price }}"
               data-description="{{ product.description|escapejs }}"
               data-image="{{ product.image.url|default:'/static/images/placeholder.jpg'|escapejs }}"
+              data-seller-profile-pic="{% if product.shop.seller.profile_picture %}{{ product.shop.seller.profile_picture.url }}{% else %}icon{% endif %}"
               data-seller-name="{{ product.shop.name }}"
               data-seller-rating="{{ product.shop.seller.rating|default:0 }}"
               data-seller-products="{{ product.shop.products.count }}"
@@ -121,7 +122,10 @@
         <div class="seller">
           <p class="label">Seller</p>
           <a href="#" class="wrap"> 
-            <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+            <div class="profile-img medium">
+              <img src="" alt="Seller Profile" class="profile-avatar" style="display: none;">
+              <i class="bi bi-person-circle"></i>
+            </div>
 
             <div class="info">
               <p class="seller-name"></p>
@@ -169,44 +173,59 @@
 
 {% block scripts %}
 <script>
-// Populate filters & handle search/filter
 $(document).ready(function () {
+  // === Hardcoded choices from your Product model (always complete) ===
+  const MATERIAL_CHOICES = [
+    { value: 'gold and silver', label: 'Gold & Silver' },
+    { value: 'gold', label: 'Gold' },
+    { value: 'silver', label: 'Silver' },
+    { value: 'rose gold', label: 'Rose Gold' },
+    { value: 'white gold', label: 'White Gold' }
+  ];
 
-  // Fill <select> options from existing items
-  function populateSelect(id, dataAttr) {
-    let values = new Set();
-    $('.item').each(function () {
-      values.add($(this).data(dataAttr));
-    });
-    Array.from(values).sort().forEach(v => {
-      let label = v.replace(/\b\w/g, c => c.toUpperCase()); // capitalize each word
-      $(`#${id}`).append(`<option value="${v}">${label}</option>`);
+  const TYPE_CHOICES = [
+    { value: 'necklace', label: 'Necklace' },
+    { value: 'bangle', label: 'Bangle' },
+    { value: 'earings', label: 'Earings' },
+    { value: 'ring', label: 'Ring' }
+  ];
+
+  // Populate dropdowns with ALL possible choices
+  function populateDropdown(selectId, choices) {
+    const $select = $(`#${selectId}`);
+    choices.forEach(choice => {
+      $select.append(`<option value="${choice.value}">${choice.label}</option>`);
     });
   }
 
-  populateSelect('filter-material', 'material');
-  populateSelect('filter-type', 'type');
+  populateDropdown('filter-material', MATERIAL_CHOICES);
+  populateDropdown('filter-type', TYPE_CHOICES);
 
-  // Combined search + filter
+  // === Filtering logic (same as before, but now works with full options) ===
   function filterItems() {
-    let searchVal = $('#search-item').val().toLowerCase();
-    let matVal = $('#filter-material').val().toLowerCase();
-    let typeVal = $('#filter-type').val().toLowerCase();
+    const searchVal = $('#search-item').val().trim().toLowerCase();
+    const matVal = $('#filter-material').val().toLowerCase();
+    const typeVal = $('#filter-type').val().toLowerCase();
 
     $('.item').each(function () {
-      let name = $(this).data('name').toLowerCase();
-      let material = $(this).data('material').toLowerCase();
-      let type = $(this).data('type').toLowerCase();
+      const $item = $(this);
+      const name = ($item.data('name') || '').toString().toLowerCase();
+      const material = ($item.data('material') || '').toString().toLowerCase();
+      const type = ($item.data('type') || '').toString().toLowerCase();
 
-      let matchSearch = name.includes(searchVal);
-      let matchMat = !matVal || material === matVal;
-      let matchType = !typeVal || type === typeVal;
+      const matchesSearch = name.includes(searchVal);
+      const matchesMaterial = !matVal || material === matVal;
+      const matchesType = !typeVal || type === typeVal;
 
-      $(this).toggle(matchSearch && matchMat && matchType);
+      $item.toggle(matchesSearch && matchesMaterial && matchesType);
     });
   }
 
+  // Trigger filter on any change
   $('#search-item, #filter-material, #filter-type').on('input change', filterItems);
+
+  // Initial filter (in case page loads with pre-selected filters)
+  filterItems();
 });
 </script>
 

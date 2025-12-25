@@ -22,8 +22,12 @@
                 <p class="price"><span class="currency">₱</span>{{ item.product.price }}</p>
     
                 <a href="{% url 'shop:shop_info' item.product.shop.id %}" class="seller">
-                  <div class="seller-img">
-                    <i class="bi bi-person-circle"></i>
+                  <div class="profile-img small">
+                    {% if item.product.shop.seller.profile_picture %}
+                        <img src="{{ item.product.shop.seller.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+                    {% else %}
+                        <i class="bi bi-person-circle"></i>
+                    {% endif %}
                   </div>
                   <p class="seller-name">{{ item.product.shop.name }}</p>
                 </a>
@@ -75,32 +79,39 @@
       <div class="computation-section">
         <div class="status-info-green">
           <p>Estimated arrival:</p>
-          <p class="value">{{eta_range}}</p>
+          <p class="value">{{ eta_range }}</p>
         </div>
 
         <div class="content-wrapper">
           <div class="label-with-value">
-            <p class="label">Total items: </p>
-            <p>{{total_items}}</p>
+            <p class="label">Total items:</p>
+            <p>{{ total_items }}</p>
           </div>
 
           <div class="label-with-value">
-            <p class="label">Subtotal: </p>
-            <p class="price"><span class="currency">₱</span>{{subtotal}}</p>
+            <p class="label">Subtotal:</p>
+            <p class="price"><span class="currency">₱</span>{{ subtotal|floatformat:2 }}</p>
           </div>
 
           <div class="label-with-value">
-            <p class="label">Delivery fee: </p>
-            <p class="price" style="text-align: right"><span class="currency">₱</span>{{delivery_fee_per_item}} x {{total_items}} = <span class="currency">₱</span>{{total_delivery_fee}}</p>
+            <p class="label">Delivery fee:</p>
+            <p class="price" style="text-align: right;">
+              <span class="currency">₱</span>{{ delivery_fee_per_seller }} × {{ unique_sellers }} seller{{ unique_sellers|pluralize }}
+              = <span class="currency">₱</span>{{ total_delivery_fee|floatformat:2 }}
+            </p>
+          </div>
+
+          <div class="label-with-value">
+            <p class="label">Tax (5%):</p>
+            <p class="price"><span class="currency">₱</span>{{ tax|floatformat:2 }}</p>
           </div>
 
           <div class="label-with-value total">
-            <p class="label">Total: </p>
-            <p class="price"><span class="currency">₱</span>{{total}}</p>
+            <p class="label">Total:</p>
+            <p class="price"><span class="currency">₱</span>{{ total|floatformat:2 }}</p>
           </div>
         </div>
 
-        <!-- FIXED: Changed type to button and added correct ID -->
         <button type="button" id="place-order-btn" class="primary-btn medium-btn">Place order</button>
       </div>
     </form>

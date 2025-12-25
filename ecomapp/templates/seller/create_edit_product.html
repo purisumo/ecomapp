@@ -64,6 +64,8 @@
           <select class="list-btn" name="type" id="type">
             <option value="necklace" {% if product.material == "necklace" %}selected{% elif not product %}selected{% endif %}>Necklace</option>
             <option value="bangle" {% if product.material == "bangle" %}selected{% endif %}>Bangle</option>
+            <option value="bangle" {% if product.material == "earrings" %}selected{% endif %}>Earrings</option>
+            <option value="bangle" {% if product.material == "ring" %}selected{% endif %}>Ring</option>
           </select>
         </div>
       </div>

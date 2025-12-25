@@ -36,15 +36,29 @@
             <div class="item-info">
               <p class="item-name">{{ first_item.product.name }}</p>
   
-              <a class="seller">
-                <div class="seller-img">
-                  <i class="bi bi-person-circle"></i>
+              <a {% if user.user_type == 'customer' %}href="{% url 'shop:shop_info' order.shop.id %}"{% endif %} class="seller">
+                <div class="profile-img semi-medium">
+                  {% if user.user_type == 'customer' %}
+                    <!-- Customer view: show seller's picture -->
+                    {% if order.shop.seller.profile_picture %}
+                      <img src="{{ order.shop.seller.profile_picture.url }}" alt="Seller" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% else %}
+                    <!-- Seller/Admin view: show customer's picture -->
+                    {% if order.customer.profile_picture %}
+                      <img src="{{ order.customer.profile_picture.url }}" alt="Customer" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% endif %}
                 </div>
   
                 <div>
-                  <p class="seller-name">{{ order.customer.first_name }} {{ order.customer.last_name }}</p>
+                  <p class="seller-name">{% if user.user_type == 'customer' %}{{order.shop.name}}{% else %}{{ order.customer.first_name }} {{ order.customer.last_name }}{% endif %}</p>
   
-                  <p class="user-role">Customer</p>
+                  <p class="user-role">{% if user.user_type == 'customer' %}Shop{% else %}Customer{% endif %}</p>
                 </div>
               </a>
             </div>
@@ -60,8 +74,14 @@
               </div>
   
               <div class="label-with-value estimated-cont">
-                <p class="label">Estimated time arrival:</p>
-                <p class="value">{{ order.estimated_time_arrival }}</p>
+                <div>
+                  <p class="label">Estimated time arrival:</p>
+                  <p class="value">{{ order.estimated_time_arrival }}</p>
+                </div>
+                <div>
+                  <p class="label">Mode of payment:</p>
+                  <p class="value">{% if order.mode_of_payment == 'gcash' %}GCash{% else %}Cash on Delivery{% endif %}</p>
+                </div>
               </div>
             </div>
   
@@ -77,6 +97,11 @@
                 <div class="label-with-value">
                   <p class="label">Delivery fee: </p>
                   <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
+                </div>
+  
+                <div class="label-with-value">
+                  <p class="label">Tax: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.tax }}</p>
                 </div>
   
                 <div class="label-with-value total">
@@ -114,15 +139,29 @@
             <div class="item-info">
               <p class="item-name">{{ first_item.product.name }}</p>
   
-              <a href="{% url 'shop:shop_info' order.customer.id %}" class="seller">
-                <div class="seller-img">
-                  <i class="bi bi-person-circle"></i>
+              <a {% if user.user_type == 'customer' %}href="{% url 'shop:shop_info' order.shop.id %}"{% endif %} class="seller">
+                <div class="profile-img semi-medium">
+                  {% if user.user_type == 'customer' %}
+                    <!-- Customer view: show seller's picture -->
+                    {% if order.shop.seller.profile_picture %}
+                      <img src="{{ order.shop.seller.profile_picture.url }}" alt="Seller" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% else %}
+                    <!-- Seller/Admin view: show customer's picture -->
+                    {% if order.customer.profile_picture %}
+                      <img src="{{ order.customer.profile_picture.url }}" alt="Customer" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% endif %}
                 </div>
   
                 <div>
-                  <p class="seller-name">{{ order.customer.first_name }} {{ order.customer.last_name }}</p>
+                  <p class="seller-name">{% if user.user_type == 'customer' %}{{order.shop.name}}{% else %}{{ order.customer.first_name }} {{ order.customer.last_name }}{% endif %}</p>
   
-                  <p class="user-role">Customer</p>
+                  <p class="user-role">{% if user.user_type == 'customer' %}Shop{% else %}Customer{% endif %}</p>
                 </div>
               </a>
             </div>
@@ -138,13 +177,37 @@
               </div>
   
               <div class="label-with-value estimated-cont">
-                <p class="label">Estimated time arrival:</p>
-                <p class="value">{{ order.estimated_time_arrival }}</p>
+                <div>
+                  <p class="label">Estimated time arrival:</p>
+                  <p class="value">{{ order.estimated_time_arrival }}</p>
+                </div>
+                <div>
+                  <p class="label">Mode of payment:</p>
+                  <p class="value">{% if order.mode_of_payment == 'gcash' %}GCash{% else %}Cash on Delivery{% endif %}</p>
+                </div>
               </div>
             </div>
   
             <div class="more-info-wrap">
               <p class="status shipped">Shipped</p>
+
+              {% if user.user_type == 'customer' and order.mode_of_payment == 'gcash' %}
+                {% if order.gcash_receipt %}
+                  <div style="text-align:center; margin:15px 0;">
+                    <p><strong>GCash Receipt Uploaded</strong></p>
+                    <img src="{{ order.gcash_receipt.url }}" alt="GCash Receipt" style="max-width:300px; border-radius:8px; border:1px solid #ccc;">
+                  </div>
+                {% else %}
+                  <button type="button" class="primary-btn gcash-upload-btn" data-id="{{ order.id }}">
+                    Upload GCash Receipt Screenshot
+                  </button>
+                {% endif %}
+              {% elif user.user_type != 'customer' and order.mode_of_payment == 'gcash' and order.gcash_receipt %}
+                <div style="text-align:center; margin:15px 0;">
+                  <p><strong>GCash Receipt Uploaded</strong></p>
+                  <img src="{{ order.gcash_receipt.url }}" alt="GCash Receipt" style="max-width:300px; border-radius:8px; border:1px solid #ccc;">
+                </div>
+              {% endif %}
   
               <div class="computation-cont">
                 <div class="label-with-value">
@@ -157,6 +220,11 @@
                   <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
                 </div>
   
+                <div class="label-with-value">
+                  <p class="label">Tax: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.tax }}</p>
+                </div>
+                
                 <div class="label-with-value total">
                   <p class="label">Total: </p>
                   <p class="price"><span class="currency">₱</span>{{ order.total_amount }}</p>
@@ -189,14 +257,23 @@
             <div class="item-info">
               <p class="item-name">{{ first_item.product.name }}</p>
   
-              {% if user.user_type == 'customer' %}
-                <a href="{% url 'shop:shop_info' order.shop.id %}" class="seller">
-              {% else %}
-                <a href="{% url 'shop:shop_info' order.customer.id %}" class="seller">
-              {% endif %}
-
-                <div class="seller-img">
-                  <i class="bi bi-person-circle"></i>
+              <a {% if user.user_type == 'customer' %}href="{% url 'shop:shop_info' order.shop.id %}"{% endif %} class="seller">
+                <div class="profile-img semi-medium">
+                  {% if user.user_type == 'customer' %}
+                    <!-- Customer view: show seller's picture -->
+                    {% if order.shop.seller.profile_picture %}
+                      <img src="{{ order.shop.seller.profile_picture.url }}" alt="Seller" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% else %}
+                    <!-- Seller/Admin view: show customer's picture -->
+                    {% if order.customer.profile_picture %}
+                      <img src="{{ order.customer.profile_picture.url }}" alt="Customer" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% endif %}
                 </div>
   
                 <div>
@@ -218,8 +295,14 @@
               </div>
   
               <div class="label-with-value estimated-cont">
-                <p class="label">Estimated time arrival:</p>
-                <p class="value">{{ order.estimated_time_arrival }}</p>
+                <div>
+                  <p class="label">Estimated time arrival:</p>
+                  <p class="value">{{ order.estimated_time_arrival }}</p>
+                </div>
+                <div>
+                  <p class="label">Mode of payment:</p>
+                  <p class="value">{% if order.mode_of_payment == 'gcash' %}GCash{% else %}Cash on Delivery{% endif %}</p>
+                </div>
               </div>
             </div>
   
@@ -237,6 +320,11 @@
                   <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
                 </div>
   
+                <div class="label-with-value">
+                  <p class="label">Tax: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.tax }}</p>
+                </div>
+
                 <div class="label-with-value total">
                   <p class="label">Total: </p>
                   <p class="price"><span class="currency">₱</span>{{ order.total_amount }}</p>
@@ -272,15 +360,33 @@
             <div class="item-info">
               <p class="item-name">{{ first_item.product.name }}</p>
   
-              <a href="{% url 'shop:shop_info' order.customer.id %}" class="seller">
-                <div class="seller-img">
-                  <i class="bi bi-person-circle"></i>
+              <a {% if user.user_type == 'customer' %}href="{% url 'shop:shop_info' order.shop.id %}"{% endif %} class="seller">
+                <div class="profile-img semi-medium">
+                  {% if user.user_type == 'customer' %}
+                    <!-- Customer view: show seller's picture -->
+                    {% if order.shop.seller.profile_picture %}
+                      <img src="{{ order.shop.seller.profile_picture.url }}" alt="Seller" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% else %}
+                    <!-- Seller/Admin view: show customer's picture -->
+                    {% if order.customer.profile_picture %}
+                      <img src="{{ order.customer.profile_picture.url }}" alt="Customer" class="profile-avatar">
+                    {% else %}
+                      <i class="bi bi-person-circle"></i>
+                    {% endif %}
+                  {% endif %}
                 </div>
   
                 <div>
                   <p class="seller-name">{{ order.customer.first_name }} {{ order.customer.last_name }}</p>
   
-                  <p class="user-role">Customer</p>
+                  <div>
+                    <p class="seller-name">{% if user.user_type == 'customer' %}{{order.shop.name}}{% else %}{{ order.customer.first_name }} {{ order.customer.last_name }}{% endif %}</p>
+    
+                    <p class="user-role">{% if user.user_type == 'customer' %}Shop{% else %}Customer{% endif %}</p>
+                </div>
                 </div>
               </a>
             </div>
@@ -296,8 +402,14 @@
               </div>
   
               <div class="label-with-value estimated-cont">
-                <p class="label">Estimated time arrival:</p>
-                <p class="value">{{ order.estimated_time_arrival }}</p>
+                <div>
+                  <p class="label">Estimated time arrival:</p>
+                  <p class="value">{{ order.estimated_time_arrival }}</p>
+                </div>
+                <div>
+                  <p class="label">Mode of payment:</p>
+                  <p class="value">{% if order.mode_of_payment == 'gcash' %}GCash{% else %}Cash on Delivery{% endif %}</p>
+                </div>
               </div>
             </div>
   
@@ -314,7 +426,12 @@
                   <p class="label">Delivery fee: </p>
                   <p class="price"><span class="currency">₱</span>{{ order.delivery_fee }}</p>
                 </div>
-  
+                
+                <div class="label-with-value">
+                  <p class="label">Tax: </p>
+                  <p class="price"><span class="currency">₱</span>{{ order.tax }}</p>
+                </div>
+                
                 <div class="label-with-value total">
                   <p class="label">Total: </p>
                   <p class="price"><span class="currency">₱</span>{{ order.total_amount }}</p>
@@ -354,6 +471,40 @@
         <button class="delete-btn" type="submit">
           Confirm
         </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<!-- GCash Receipt Upload Modal -->
+<form class="modal gcash-receipt-modal" method="post" enctype="multipart/form-data" id="gcash-receipt-modal">
+  {% csrf_token %}
+  <div class="modal-container">
+    <div class="close"><i class="bi bi-x"></i></div>
+
+    <div class="modal-content">
+      <input type="hidden" name="order_id" id="gcash-order-id">
+
+      <div class="content-wrap type2">
+        <h3 style="margin-bottom: 15px;">Upload GCash Receipt</h3>
+        <p style="margin-bottom: 20px;">Please upload a clear screenshot of your GCash payment confirmation.</p>
+
+        <div class="file-upload-area" style="text-align: center; margin: 20px 0;">
+          <label class="custom-file-upload large">
+            <input type="file" name="gcash_receipt" accept="image/*" required>
+            Choose Image
+          </label>
+        </div>
+
+        <div class="preview-area" style="margin: 20px 0; display: none;">
+          <p><strong>Preview:</strong></p>
+          <img id="receipt-preview" src="" alt="Receipt Preview" style="max-width: 100%; max-height: 400px; border-radius: 8px; border: 1px solid #ddd;">
+        </div>
+      </div>
+
+      <div class="button-cont-below">
+        <button type="button" class="border-btn-primary2 cancel-btn">Cancel</button>
+        <button type="submit" name="upload-gcash-receipt" class="primary-btn">Upload Receipt</button>
       </div>
     </div>
   </div>

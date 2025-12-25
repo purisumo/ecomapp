@@ -1388,13 +1388,18 @@ def checkout(request):
                     'checkout_url': payment.checkout_url,
                 })
             else:
+                # Better error reporting
+                error_msg = result.get('error', 'Unknown error')
+                response_data = result.get('response', {})
                 payment.status = 'failed'
                 payment.save()
+
                 return JsonResponse({
                     'success': False,
-                    'message': 'Failed to create payment session.'
+                    'message': f'Payment failed: {error_msg}',
+                    'details': response_data
                 }, status=400)
-
+    
         elif mop == 'cod':
             return process_cod_order(
                 request=request,
@@ -1417,7 +1422,6 @@ def checkout(request):
 
 @login_required
 def gcash_callback(request):
-    """Handle GCash authorization callback (success)"""
     payment_id = request.GET.get('payment_id')
     
     if not payment_id:
@@ -1430,25 +1434,20 @@ def gcash_callback(request):
         messages.error(request, "Payment not found.")
         return redirect('shop:products')
     
-    # Check source status with PayMongo
     paymongo = PayMongoAPI()
     source_result = paymongo.retrieve_source(payment.source_id)
     
     if not source_result['success']:
         payment.status = 'failed'
         payment.save()
-        messages.error(request, "Failed to verify payment. Please contact support.")
+        messages.error(request, "Failed to verify payment.")
         return redirect('shop:products')
     
     source_data = source_result['data']['data']
     source_status = source_data['attributes']['status']
     
     if source_status == 'chargeable':
-        # Source is authorized, mark as chargeable
-        payment.status = 'chargeable'
-        payment.save()
-        
-        # Now create the actual payment to charge the source
+        # Create payment to charge the source
         amount_in_cents = int(payment.amount * 100)
         payment_result = paymongo.create_payment(
             source_id=payment.source_id,
@@ -1463,27 +1462,104 @@ def gcash_callback(request):
             payment.completed_at = timezone.now()
             payment.save()
             
-            # Process the order
-            process_order_from_payment(payment)
+            # === IMPORTANT: Create Orders from session data ===
+            session_data = payment.session_data
+            cart_data = session_data.get('cart_data', [])
+            delivery_fee_per_seller = Decimal(str(session_data.get('delivery_fee_per_seller', 159)))
+            tax_rate = Decimal('0.05')
+            eta_range = session_data.get('eta_range', "Within 6-8 days")
+            
+            # Group by shop
+            items_by_shop = defaultdict(list)
+            for item in cart_data:
+                product = Product.objects.get(id=item['product_id'])
+                items_by_shop[product.shop].append({
+                    'product': product,
+                    'quantity': item['quantity'],
+                    'price': Decimal(str(item['price']))
+                })
+            
+            with transaction.atomic():
+                for shop, shop_items in items_by_shop.items():
+                    subtotal = sum(item['price'] * item['quantity'] for item in shop_items)
+                    tax = (subtotal * tax_rate).quantize(Decimal('0.01'))
+                    total_amount = subtotal + delivery_fee_per_seller + tax
+                    
+                    order = Order.objects.create(
+                        customer=request.user,
+                        shop=shop,
+                        order_number=generate_unique_order_number(),
+                        delivery_fee=delivery_fee_per_seller,
+                        tax=tax,
+                        total_amount=total_amount,
+                        estimated_time_arrival=eta_range,
+                        mode_of_payment='gcash',
+                        status='pending'
+                    )
+                    
+                    for item in shop_items:
+                        for _ in range(item['quantity']):
+                            OrderItem.objects.create(
+                                order=order,
+                                product=item['product'],
+                                quantity=1,
+                                unit_price=item['price'],
+                                subtotal=item['price']
+                            )
+                        
+                        # Make product unavailable
+                        item['product'].is_available = False
+                        item['product'].save()
+                        
+                        # Remove from other carts
+                        other_cart_items = CartItem.objects.filter(product=item['product']).exclude(cart__customer=request.user)
+                        for other in other_cart_items:
+                            if other.cart and other.cart.customer:
+                                Notification.objects.create(
+                                    user=other.cart.customer,
+                                    title="Item no longer available",
+                                    content=f"'{item['product'].name}' was purchased by another customer.",
+                                    type='product'
+                                )
+                            other.delete()
+                    
+                    # Notify seller
+                    Notification.objects.create(
+                        user=shop.seller,
+                        title="New GCash Order",
+                        content=f"New order #{order.order_number} worth ₱{total_amount}",
+                        type='order'
+                    )
+                
+                # Notify buyer
+                Notification.objects.create(
+                    user=request.user,
+                    title="Order Placed",
+                    content=f"Your GCash order(s) placed. Estimated arrival: {eta_range}.",
+                    type='order'
+                )
+            
+            # Clear cart
+            request.user.cart.items.all().delete()
             
             messages.success(request, "Payment successful! Your order has been placed.")
             return redirect('shop:checkout_success')
         else:
             payment.status = 'failed'
             payment.save()
-            messages.error(request, "Payment failed. Please try again.")
+            messages.error(request, "Payment failed.")
             return redirect('shop:products')
     
     elif source_status == 'pending':
-        messages.info(request, "Payment is still being processed. Please wait.")
+        messages.info(request, "Payment still processing.")
         return redirect('shop:products')
     
     else:
         payment.status = 'failed'
         payment.save()
-        messages.error(request, "Payment was not authorized. Please try again.")
+        messages.error(request, "Payment not authorized.")
         return redirect('shop:products')
-
+    
 @login_required
 def gcash_failed(request):
     """Handle GCash authorization failure"""
@@ -1704,22 +1780,47 @@ def orders_view(request):
     #     'cancelled': user_orders.filter(status='cancelled'),
     # }
 
-    if request.method == 'POST' and 'cancel-order' in request.POST:
-        order = get_object_or_404(Order, id=request.POST.get('selected-id'), customer=request.user)
-        order.status = 'cancelled'
-        order.save()
+    if request.method == 'POST':
+        if 'cancel-order' in request.POST:
+            order = get_object_or_404(Order, id=request.POST.get('selected-id'), customer=request.user)
+            order.status = 'cancelled'
+            order.save()
 
-        # Notify the seller
-        seller = order.shop.seller
-        Notification.objects.create(
-            user=seller,
-            title="Order Cancelled",
-            content=f"Your order #{order.id} from {request.user.get_full_name()} has been cancelled.",
-            type='order'
-        )
+            # Notify the seller
+            seller = order.shop.seller
+            Notification.objects.create(
+                user=seller,
+                title="Order Cancelled",
+                content=f"Your order #{order.id} from {request.user.get_full_name()} has been cancelled.",
+                type='order'
+            )
 
-        messages.success(request, 'Order cancelled successfully!')
-        return redirect('shop:orders')
+            messages.success(request, 'Order cancelled successfully!')
+            return redirect('shop:orders')
+        
+        elif 'upload-gcash-receipt' in request.POST:
+            order_id = request.POST.get('order_id')
+            order = get_object_or_404(Order, id=order_id, customer=request.user, mode_of_payment='gcash')
+            
+            receipt_file = request.FILES.get('gcash_receipt')
+            if receipt_file:
+                order.gcash_receipt = receipt_file
+                order.save()
+                
+                # Notify seller
+                Notification.objects.create(
+                    user=order.shop.seller,
+                    title="GCash Receipt Uploaded",
+                    content=f"Customer {request.user.get_full_name()} uploaded GCash receipt for order #{order.order_number}.",
+                    type='order'
+                )
+                
+                messages.success(request, "GCash receipt uploaded successfully!")
+            else:
+                messages.error(request, "Please select an image to upload.")
+            
+            return redirect('shop:orders')
+
 
     return render(request, 'list_of_orders.html', {'orders': grouped_orders})
 

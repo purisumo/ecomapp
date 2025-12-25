@@ -7,7 +7,13 @@
 <section class="customer-info-page">
   <div class="page-wrapper">
     <div class="left-section">
-      <div class="image-cont"><i class="bi bi-person-circle"></i></div>
+      <div class="profile-img">
+        {% if selected_shop.seller.profile_picture %}
+            <img src="{{ selected_shop.seller.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+        {% else %}
+            <i class="bi bi-person-circle"></i>
+        {% endif %}
+      </div>
 
       <div class="user-info">
         <p class="name">{{selected_shop.name}}</p>
@@ -57,6 +63,7 @@
             data-price="{{ product.price }}"
             data-description="{{ product.description|escapejs }}"
             data-image="{{ product.image.url|default:'/static/images/placeholder.jpg'|escapejs }}"
+            data-seller-profile-pic="{{ product.shop.seller.profile_picture }}"
             data-seller-name="{{ product.shop.name }}"
             data-seller-rating="{{ product.shop.seller.rating|default:0 }}"
             data-seller-products="{{ product.shop.products.count }}"
@@ -96,8 +103,12 @@
       {% for review in shop_reviews %}
       <div class="rates-item">
         <div class="top-section">
-          <div class="seller-img">
-            <i class="bi bi-person-circle"></i>
+          <div class="profile-img medium">
+            {% if review.customer.profile_picture %}
+                <img src="{{ review.customer.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+            {% else %}
+                <i class="bi bi-person-circle"></i>
+            {% endif %}
           </div>
 
           <div class="content-wrap">
@@ -154,7 +165,10 @@
         <div class="seller">
           <p class="label">Seller</p>
           <a href="#" class="wrap"> 
-            <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+            <div class="profile-img medium">
+              <img src="" alt="Seller Profile" class="profile-avatar" style="display: none;">
+              <i class="bi bi-person-circle"></i>
+            </div>
 
             <div class="info">
               <p class="seller-name"></p>

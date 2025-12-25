@@ -18,8 +18,12 @@
           {% if chats %}
             {% for chat in chats %}
               <div class="message-list-item {% if not chat.is_read and selected_chat.id != chat.id %}unread{% endif %} {% if selected_chat and selected_chat.id == chat.id %}selected{% endif %}" data-chat-id="{{ chat.id }}">
-                <div class="seller-img">
-                  <i class="bi bi-person-circle"></i>
+                <div class="profile-img medium">
+                  {% if chat.customer.profile_picture %}
+                      <img src="{{ chat.customer.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+                  {% else %}
+                      <i class="bi bi-person-circle"></i>
+                  {% endif %}
                 </div>
                 <div class="content-info">
                   <p class="name">{{ chat.customer.username }}</p>
@@ -53,7 +57,13 @@
         {% elif selected_chat %}
           <div class="top-wrap">
             <div class="seller">
-              <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+              <div class="profile-img medium">
+                {% if selected_chat.customer.profile_picture %}
+                    <img src="{{ selected_chat.customer.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+                {% else %}
+                    <i class="bi bi-person-circle"></i>
+                {% endif %}
+              </div>
               <div class="wrapper">
                 <p class="name">{{ selected_chat.customer.username }}</p>
               </div>

@@ -21,8 +21,12 @@
           {% if shops %}
             {% for shop in shops %}
               <div class="message-list-item {% if not shop.is_read %}meow{% endif %} {% if selected_shop and selected_shop.id == shop.id %}selected{% endif %}" data-shop-id="{{ shop.id }}" data-chat-id="{{ shop.chat_id|default:0 }}">
-                <div class="seller-img">
-                  <i class="bi bi-person-circle"></i>
+                <div class="profile-img medium">
+                  {% if shop.seller.profile_picture %}
+                      <img src="{{ shop.seller.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+                  {% else %}
+                      <i class="bi bi-person-circle"></i>
+                  {% endif %}
                 </div>
                 <div class="content-info">
                   <p class="name" {% if shop.is_message_read %}style="font-weight:600"{% endif %}>{{ shop.name }}</p>
@@ -53,7 +57,14 @@
         {% elif selected_shop %}
           <div class="top-wrap">
             <div class="seller">
-              <div class="seller-img"><i class="bi bi-person-circle"></i></div>
+              <div class="profile-img medium">
+                {% if selected_shop.seller.profile_picture %}
+                    <img src="{{ selected_shop.seller.profile_picture.url }}" alt="Profile Picture" class="profile-avatar">
+                {% else %}
+                    <i class="bi bi-person-circle"></i>
+                {% endif %}
+              </div>
+
               <div class="wrapper">
                 <a href="{% url 'shop:shop_info' selected_shop.id%}" class="name">{{selected_shop.name}}</a>
               </div>

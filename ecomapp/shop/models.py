@@ -121,6 +121,12 @@ class Order(models.Model):
     estimated_time_arrival = models.CharField(max_length=50,blank=True, null=True)
     mode_of_payment = models.CharField(max_length=50, choices=MOP_CHOICES, default='cod')
     payment_reference = models.CharField(max_length=100, blank=True, null=True)
+    gcash_receipt = models.ImageField(
+        upload_to='gcash_receipts/',
+        blank=True,
+        null=True,
+        help_text="Upload GCash payment receipt (required for GCash orders)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
